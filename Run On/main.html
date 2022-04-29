@@ -173,5 +173,30 @@
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
+
+  <!--Firebase 추가 하는 코드-->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.7.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdM01Tlhrq9D_edwL2Xhb751gxy2GJXIY",
+      authDomain: "capstone-b921e.firebaseapp.com",
+      projectId: "capstone-b921e",
+      storageBucket: "capstone-b921e.appspot.com",
+      messagingSenderId: "733778962744",
+      appId: "1:733778962744:web:c0dc99289622576007f9cd",
+      measurementId: "G-WWQQZSWLRG"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
 </body>
 </html>
