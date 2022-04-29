@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
@@ -15,16 +16,17 @@
   <!-- Template CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Start GA -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<!-- /END GA --></head>
+    gtag('config', 'UA-94034622-3');
+  </script>
+  <!-- /END GA -->
+</head>
 
 <body>
   <div id="app">
@@ -37,69 +39,73 @@
             </div>
 
             <div class="card card-primary">
-              <div class="card-header"><h4>회원가입</h4></div>
+              <div class="card-header">
+                <h4>회원가입</h4>
+              </div>
 
               <div class="card-body">
-                <form method="POST" action="./index.html">
-                  <div class="form-group">
-                    <label for="name">이름</label>
-                    <input id="name" type="text" class="form-control" name="name">
-                    <div class="invalid-feedback">
-                    </div>
-                  </div>
-                  <div class="row">
-                    <div class="form-group col-10">
-                      <label for="userId">아이디</label>
-                      <input id="userId" type="text" class="form-control" name="userId" autofocus>
-                    </div>
-                    <div class="form-group col-2">
-                      <button type="button" id="idConfirm" class="btn btn-block p-2 pl-3 pr-3 mt-4">중복체크</button>
-                    </div>
-                  </div>
+                <!--<form method="POST" action="./index.html">-->
 
-                  <div class="row">
-                    <div class="form-group col-md-6 col-12">
-                      <label for="password" class="d-block">비밀번호</label>
-                      <input id="password" type="password" class="form-control pwstrength" data-indicator="pwindicator" name="password">
-                      <div id="pwindicator" class="pwindicator">
-                        <div class="bar"></div>
-                        <div class="label"></div>
-                      </div>
-                    </div>
-                    <div class="form-group col-md-6 col-12">
-                      <label for="password2" class="d-block">비밀번호 확인</label>
-                      <input id="password2" type="password" class="form-control" name="password-confirm">
-                    </div>
+                <div class="form-group">
+                  <label for="name">이름</label>
+                  <input id="name" type="text" class="form-control" name="name">
+                  <div class="invalid-feedback">
                   </div>
+                </div>
+                <div class="row">
+                  <div class="form-group col-10">
+                    <label for="userId">아이디</label>
+                    <input id="userId" type="text" class="form-control" name="userId" autofocus>
+                  </div>
+                  <div class="form-group col-2">
+                    <button type="button" id="idConfirm" class="btn btn-block p-2 pl-3 pr-3 mt-4">중복체크</button>
+                  </div>
+                </div>
 
-                  <div class="row">
-                    <div class="form-group col-md-6 col-12">
-                      <label for="email" class="d-block">이메일</label>
-                      <input id="email" type="email" class="form-control pwstrength" data-indicator="pwindicator" name="email">
-                      <div id="pwindicator" class="pwindicator">
-                        <div class="bar"></div>
-                        <div class="label"></div>
-                      </div>
-                    </div>
-                    <div class="form-group col-md-6 col-12">
-                      <label for="phone" class="d-block">휴대폰</label>
-                      <input id="phone" type="tel" class="form-control" name="phone">
+                <div class="row">
+                  <div class="form-group col-md-6 col-12">
+                    <label for="password" class="d-block">비밀번호</label>
+                    <input id="password" type="password" class="form-control pwstrength" data-indicator="pwindicator"
+                      name="password">
+                    <div id="pwindicator" class="pwindicator">
+                      <div class="bar"></div>
+                      <div class="label"></div>
                     </div>
                   </div>
+                  <div class="form-group col-md-6 col-12">
+                    <label for="password2" class="d-block">비밀번호 확인</label>
+                    <input id="password2" type="password" class="form-control" name="password-confirm">
+                  </div>
+                </div>
 
-                  <div class="form-group">
-                    <label for="addr">주소</label>
-                    <input id="addr" type="address" class="form-control" name="addr">
-                    <div class="invalid-feedback">
+                <div class="row">
+                  <div class="form-group col-md-6 col-12">
+                    <label for="email" class="d-block">이메일</label>
+                    <input id="email" type="email" class="form-control pwstrength" data-indicator="pwindicator"
+                      name="email">
+                    <div id="pwindicator" class="pwindicator">
+                      <div class="bar"></div>
+                      <div class="label"></div>
                     </div>
                   </div>
-
-                  <div class="form-group">
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">
-                      회원가입
-                    </button>
+                  <div class="form-group col-md-6 col-12">
+                    <label for="phone" class="d-block">휴대폰</label>
+                    <input id="phone" type="tel" class="form-control" name="phone">
                   </div>
-                </form>
+                </div>
+
+                <div class="form-group">
+                  <label for="addr">주소</label>
+                  <input id="addr" type="address" class="form-control" name="addr">
+                  <div class="invalid-feedback">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="submit" class="btn btn-primary btn-lg btn-block" onclick="getInfo()">
+                    회원가입
+                  </button>
+                </div>
               </div>
             </div>
             <div class="simple-footer">
@@ -111,6 +117,27 @@
     </section>
   </div>
 
+  <script>
+    function getInfo() {
+      const name = document.getElementById('name').value;
+      const userId = document.getElementById('userId').value;
+      const userPwd1 = document.getElementById('password').value;
+      const userPwd2 = document.getElementById('password2').value;
+      const email = document.getElementById('email').value;
+      const phone = document.getElementById('phone').value;
+      const address = document.getElementById('addr').value;
+      
+      console.log(name)
+      console.log(userId)
+      console.log(userPwd1)
+      console.log(userPwd2)
+      console.log(email)
+      console.log(phone)
+      console.log(address)
+    }
+
+  </script>
+
   <!-- General JS Scripts -->
   <script src="assets/modules/jquery.min.js"></script>
   <script src="assets/modules/popper.js"></script>
@@ -119,17 +146,43 @@
   <script src="assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
   <script src="assets/modules/moment.min.js"></script>
   <script src="assets/js/stisla.js"></script>
-  
+
   <!-- JS Libraies -->
   <script src="assets/modules/jquery-pwstrength/jquery.pwstrength.min.js"></script>
   <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
 
   <!-- Page Specific JS File -->
   <script src="assets/js/page/auth-register.js"></script>
-  
+
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
-  
+
+  <!--Firebase 추가 하는 코드-->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.7.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.7.0/firebase-analytics.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    const firebaseConfig = {
+      apiKey: "AIzaSyAdM01Tlhrq9D_edwL2Xhb751gxy2GJXIY",
+      authDomain: "capstone-b921e.firebaseapp.com",
+      projectId: "capstone-b921e",
+      storageBucket: "capstone-b921e.appspot.com",
+      messagingSenderId: "733778962744",
+      appId: "1:733778962744:web:c0dc99289622576007f9cd",
+      measurementId: "G-WWQQZSWLRG"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+  </script>
+
 </body>
+
 </html>
