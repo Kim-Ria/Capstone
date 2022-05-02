@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
+  <title>예약 조회</title>
+
+ <!-- General CSS Files -->
+ <link rel="stylesheet" href="assets/modules/bootstrap/css/bootstrap.min.css">
+ <link rel="stylesheet" href="assets/modules/fontawesome/css/all.min.css">
+
+ <!-- CSS Libraries -->
+ <link rel="stylesheet" href="assets/modules/bootstrap-daterangepicker/daterangepicker.css">
+ <link rel="stylesheet" href="assets/modules/bootstrap-colorpicker/dist/css/bootstrap-colorpicker.min.css">
+ <link rel="stylesheet" href="assets/modules/select2/dist/css/select2.min.css">
+ <link rel="stylesheet" href="assets/modules/jquery-selectric/selectric.css">
+ <link rel="stylesheet" href="assets/modules/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+ <link rel="stylesheet" href="assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.css">
+
+ <!-- Template CSS -->
+ <link rel="stylesheet" href="assets/css/style.css">
+ <link rel="stylesheet" href="assets/css/components.css">
+<!-- Start GA -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+<script>
+ window.dataLayer = window.dataLayer || [];
+ function gtag(){dataLayer.push(arguments);}
+ gtag('js', new Date());
+
+ gtag('config', 'UA-94034622-3');
+</script>
+<!-- /END GA -->
+</head>
+
+<body class="layout-3">
+  <div id="app">
+    <div class="main-wrapper container">
+      <!-- 헤더 네비게이션 -->
+      <div class="navbar-bg"></div>
+      <nav class="navbar navbar-expand-lg main-navbar">
+        <a href="main.html" class="navbar-brand sidebar-gone-hide">RUN ON</a>
+        <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
+        <div class="nav-collapse">
+          <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
+            <i class="fas fa-ellipsis-v"></i>
+          </a>
+        </div>
+        <form class="form-inline ml-auto">
+          <ul class="navbar-nav">
+            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i class="fas fa-search"></i></a></li>
+          </ul>
+        </form>
+        <ul class="navbar-nav navbar-right">
+          <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep"><i class="far fa-bell"></i></a>
+            <div class="dropdown-menu dropdown-list dropdown-menu-right">
+              <div class="dropdown-header">Notifications
+                <div class="float-right">
+                  <a href="#">Mark All As Read</a>
+                </div>
+              </div>
+              <div class="dropdown-list-content dropdown-list-icons">
+                <a href="#" class="dropdown-item dropdown-item-unread">
+                  <div class="dropdown-item-icon bg-primary text-white">
+                    <i class="fas fa-code"></i>
+                  </div>
+                  <div class="dropdown-item-desc">
+                    Template update is available now!
+                    <div class="time text-primary">2 Min Ago</div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="dropdown-item-icon bg-info text-white">
+                    <i class="far fa-user"></i>
+                  </div>
+                  <div class="dropdown-item-desc">
+                    <b>You</b> and <b>Dedik Sugiharto</b> are now friends
+                    <div class="time">10 Hours Ago</div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="dropdown-item-icon bg-success text-white">
+                    <i class="fas fa-check"></i>
+                  </div>
+                  <div class="dropdown-item-desc">
+                    <b>Kusnaedi</b> has moved task <b>Fix bug header</b> to <b>Done</b>
+                    <div class="time">12 Hours Ago</div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="dropdown-item-icon bg-danger text-white">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div class="dropdown-item-desc">
+                    Low disk space. Let's clean it!
+                    <div class="time">17 Hours Ago</div>
+                  </div>
+                </a>
+                <a href="#" class="dropdown-item">
+                  <div class="dropdown-item-icon bg-info text-white">
+                    <i class="fas fa-bell"></i>
+                  </div>
+                  <div class="dropdown-item-desc">
+                    Welcome to Stisla template!
+                    <div class="time">Yesterday</div>
+                  </div>
+                </a>
+              </div>
+              <div class="dropdown-footer text-center">
+                <a href="#">View All <i class="fas fa-chevron-right"></i></a>
+              </div>
+            </div>
+          </li>
+          <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+            <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
+            <div class="d-sm-none d-lg-inline-block">신동준</div></a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <a href="mypage.html" class="dropdown-item has-icon">
+                <i class="far fa-user"></i> 마이페이지
+              </a>
+              <a href="index.html" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> 로그아웃
+              </a>
+            </div>
+          </li>
+        </ul>
+      </nav>
+
+      <nav class="navbar navbar-secondary navbar-expand-lg">
+        <div class="container">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a href="#" class="nav-link"><span>좌석예약</span></a>
+            </li>
+            <li class="nav-item">
+              <a href="./reserv_history.html" class="nav-link"><span>예약조회</span></a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+      <!-- 네비게이션 여기까지 -->
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <section class="section">
+            <div class="card">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="card">
+                      <div class="card-header">
+                        <h4>예약 내역 조회</h4>
+                        <div class="card-header-action">
+                          <div class="form-group">
+                            <a href="javascript:;" class="btn btn-primary daterange-btn icon-left btn-icon">
+                              <i class="fas fa-calendar"></i>조회 기간
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12">
+                        <div class="card card-primary">
+                          <div class="card-header">
+                            <h4 class="text-primary">이용 예정</h4>&nbsp;
+                            2022.04.25 | 13:00~15:00
+                          </div>
+                          <div class="card-body text-dark">
+                            AA도서관 제1열람실 99번 &nbsp;&nbsp;&nbsp;
+                            <a href="./reserv_detail.html" clas="text-muted">예약 상세&nbsp;＞</a>
+                          </div>
+                        </div>
+                        <div class="card card-primary">
+                          <div class="card-header">
+                            <h4 class="text-primary">이용 중</h4>&nbsp;
+                            2022.04.25 | 13:00~15:00
+                          </div>
+                          <div class="card-body text-dark">
+                            AA도서관 제1열람실 99번 &nbsp;&nbsp;&nbsp;
+                            <a href="./reserv_detail.html" clas="text-muted">예약 상세&nbsp;＞</a>
+                          </div>
+                        </div>
+                        <div class="card card-secondary">
+                          <div class="card-header">
+                            <h4 class="text-muted">예약 취소</h4>&nbsp;
+                            2022.04.25 | 13:00~15:00
+                          </div>
+                          <div class="card-body text-dark">
+                            AA도서관 제1열람실 99번 &nbsp;&nbsp;&nbsp;
+                            <a href="./reserv_detail.html" clas="text-muted">예약 상세&nbsp;＞</a>
+                          </div>
+                        </div>
+                        <div class="card card-secondary">
+                          <div class="card-header">
+                            <h4 class="text-dark">이용 완료</h4>&nbsp;
+                            2022.04.25 | 13:00~15:00
+                          </div>
+                          <div class="card-body text-dark">
+                            AA도서관 제1열람실 99번 &nbsp;&nbsp;&nbsp;
+                            <a href="./reserv_detail.html" clas="text-muted">예약 상세&nbsp;＞</a>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="card-footer text-right">
+                        <nav class="d-inline-block">
+                          <ul class="pagination mb-0">
+                            <li class="page-item disabled">
+                              <a class="page-link" href="#" tabindex="-1"><i class="fas fa-chevron-left"></i></a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1 <span class="sr-only">(current)</span></a></li>
+                            <li class="page-item">
+                              <a class="page-link" href="#">2</a>
+                            </li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                              <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
+                            </li>
+                          </ul>
+                        </nav>
+                      </div>
+                  </div>
+                </div>
+            </div>
+        </section>
+      </div>
+      <footer class="main-footer">
+        <div class="footer-left">
+          Copyright &copy; 2018 <div class="bullet"></div> Design By <a href="https://nauval.in/">Muhamad Nauval Azhar</a>
+        </div>
+        <div class="footer-right">
+          
+        </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- General JS Scripts -->
+  <script src="assets/modules/jquery.min.js"></script>
+  <script src="assets/modules/popper.js"></script>
+  <script src="assets/modules/tooltip.js"></script>
+  <script src="assets/modules/bootstrap/js/bootstrap.min.js"></script>
+  <script src="assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
+  <script src="assets/modules/moment.min.js"></script>
+  <script src="assets/js/stisla.js"></script>
+  
+  <!-- JS Libraies -->
+  <script src="assets/modules/cleave-js/dist/cleave.min.js"></script>
+  <script src="assets/modules/cleave-js/dist/addons/cleave-phone.us.js"></script>
+  <script src="assets/modules/jquery-pwstrength/jquery.pwstrength.min.js"></script>
+  <script src="assets/modules/bootstrap-daterangepicker/daterangepicker.js"></script>
+  <script src="assets/modules/bootstrap-colorpicker/dist/js/bootstrap-colorpicker.min.js"></script>
+  <script src="assets/modules/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+  <script src="assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
+  <script src="assets/modules/select2/dist/js/select2.full.min.js"></script>
+  <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
+
+  <!-- Page Specific JS File -->
+  <script src="assets/js/page/forms-advanced-forms.js"></script>
+  
+  <!-- Template JS File -->
+  <script src="assets/js/scripts.js"></script>
+  <script src="assets/js/custom.js"></script>
+</body>
+</html>
