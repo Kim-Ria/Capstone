@@ -32,87 +32,7 @@
       <div class="navbar-bg"></div>
       <nav class="navbar navbar-expand-lg main-navbar">
         <a href="main_admin.html" class="navbar-brand sidebar-gone-hide">RUN ON</a>
-        <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
-        <div class="nav-collapse">
-          <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
-            <i class="fas fa-ellipsis-v"></i>
-          </a>
-        </div>
-        <form class="form-inline ml-auto">
-          <ul class="navbar-nav">
-            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i class="fas fa-search"></i></a></li>
-          </ul>
-        </form>
-        <ul class="navbar-nav navbar-right">
-          <li class="dropdown dropdown-list-toggle"><a href="#" data-toggle="dropdown" class="nav-link notification-toggle nav-link-lg beep"><i class="far fa-bell"></i></a>
-            <div class="dropdown-menu dropdown-list dropdown-menu-right">
-              <div class="dropdown-header">Notifications
-                <div class="float-right">
-                  <a href="#">Mark All As Read</a>
-                </div>
-              </div>
-              <div class="dropdown-list-content dropdown-list-icons">
-                <a href="#" class="dropdown-item dropdown-item-unread">
-                  <div class="dropdown-item-icon bg-primary text-white">
-                    <i class="fas fa-code"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Template update is available now!
-                    <div class="time text-primary">2 Min Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="far fa-user"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>You</b> and <b>Dedik Sugiharto</b> are now friends
-                    <div class="time">10 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-success text-white">
-                    <i class="fas fa-check"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>Kusnaedi</b> has moved task <b>Fix bug header</b> to <b>Done</b>
-                    <div class="time">12 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-danger text-white">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Low disk space. Let's clean it!
-                    <div class="time">17 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="fas fa-bell"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Welcome to Stisla template!
-                    <div class="time">Yesterday</div>
-                  </div>
-                </a>
-              </div>
-              <div class="dropdown-footer text-center">
-                <a href="#">View All <i class="fas fa-chevron-right"></i></a>
-              </div>
-            </div>
-          </li>
-          <li class="dropdown"><a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
-            <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
-            <div class="d-sm-none d-lg-inline-block">신동준</div></a>
-            <div class="dropdown-menu dropdown-menu-right">
-              <a href="index.html" class="dropdown-item has-icon text-danger">
-                <i class="fas fa-sign-out-alt"></i> 로그아웃
-              </a>
-            </div>
-          </li>
-        </ul>
+        <a href="index.html" class="text-white"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
       </nav>
 
       <nav class="navbar navbar-secondary navbar-expand-lg">
@@ -137,7 +57,58 @@
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
-          
+          <div class="section-body">
+            <div class="row">
+              <div class="col-lg-6">
+                <div class="card card-large-icons">
+                  <div class="card-icon bg-secondary text-white">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="text-dark">회원</h4>
+                    <p>회원 조회 및 관리</p>
+                    <a href="#" class="card-cta">관리 <i class="fas fa-chevron-right"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card card-large-icons">
+                  <div class="card-icon bg-secondary text-white">
+                    <i class="fas fa-search"></i>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="text-dark">블랙리스트</h4>
+                    <p>블랙리스트 조회 및 관리</p>
+                    <a href="blacklist.html" class="card-cta">관리 <i class="fas fa-chevron-right"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card card-large-icons">
+                  <div class="card-icon bg-secondary text-white">
+                    <i class="fas fa-chair"></i>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="text-dark">좌석</h4>
+                    <p>좌석 조회 및 관리</p>
+                    <a href="#" class="card-cta">관리 <i class="fas fa-chevron-right"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="card card-large-icons">
+                  <div class="card-icon bg-secondary text-white">
+                    <i class="fas fa-chart-line"></i>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="text-dark">통계</h4>
+                    <p>이용 통계 조회</p>
+                    <a href="#" class="card-cta">조회 <i class="fas fa-chevron-right"></i></a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </section>
       </div>
       <footer class="main-footer">
