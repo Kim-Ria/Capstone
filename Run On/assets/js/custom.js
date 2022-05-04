@@ -1,3 +1,20 @@
+/** index.html */
+/** 로그인 */
+function login(){
+  var id = document.getElementById('userId').value;
+  var pw = document.getElementById('password').value;
+
+  if(id==""){
+    swal("", "아이디가 입력되지 않았습니다", "warning");
+  }
+  else if(pw==""){
+    swal("", "비밀번호가 입력되지 않았습니다", "warning");
+  }
+  else{
+    location.href = './main.html';
+  }
+}
+
 /** reserv_detail.html */
 /** 예약 상세 조회 페이지 alert */
 // 예약 취소 alert
