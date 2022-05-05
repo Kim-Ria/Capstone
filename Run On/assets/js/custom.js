@@ -15,6 +15,26 @@ function login(){
   }
 }
 
+
+/** reserv_seat.html */
+/** 예약 확인 alert */
+function finishReserv(no){
+  swal({
+    title: no+"번 좌석",
+    text: "예약하시겠습니까?",
+    icon: "warning",
+    buttons: true,
+    dangerMode: true,
+  })
+  .then((cancel) => {
+    if (cancel) {
+      swal("예약이 완료되었습니다.", {
+        icon: "success",
+      }).then(() => { location.href = './reserv_history.html'; })
+    }
+  });
+}
+
 /** reserv_detail.html */
 /** 예약 상세 조회 페이지 alert */
 // 예약 취소 alert
@@ -127,4 +147,10 @@ function addBlacklistAdmin(){
       }).then(() => { location.href = './adminMember.html'; })
     }
   });
+}
+
+/** adminSeat.html */
+/** 좌석 관리 */
+function editSeat(no){
+  swal("좌석관리", no+"번 좌석", "warning");
 }
