@@ -118,13 +118,17 @@
         </ul>
       </nav>
 
-      <nav class="navbar navbar-secondary navbar-expand-lg">
+      <nav class="navbar navbar-secondary navbar-expand-lg shadow-none bg-white">
         <div class="container">
           <ul class="navbar-nav">
             <li class="nav-item">
+              <a href="./main.html" class="nav-link"><span>HOME</span></a>
             </li>
             <li class="nav-item">
-              <a href="./reserv_history.html" class="nav-link"><span>예약조회</span></a>
+                <a class="nav-link"><span class="fas fa-chevron-right text-muted"></span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link"><span class="text-primary">좌석 예약</span></a>
             </li>
           </ul>
         </div>
@@ -135,33 +139,67 @@
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
-            <h5>좌석선택</h5>
-            <div class="buttons">
-                <div class="section-title mt-0">좌석 현황</div>
-                <button type="button" class="btn btn-danger" onClick="location.href='reserv_fin.html'">A1</button>
-                <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">B1</button>
-                <button type="button" class="btn btn-danger" onClick="location.href='reserv_fin.html'">C1</button>
-                <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">D1</button>
-                <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">E1</button>
-                <button type="button" class="btn btn-danger" onClick="location.href='reserv_fin.html'">F1</button>
-              </div>
-              <div class="buttons">
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">A2</button>
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">B2</button>
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">C2</button>
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">D2</button>
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">E2</button>
-              <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">F2</button>
-            </div>
-            <div class="buttons">
-            <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">A3</button>
-            <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">B3</button>
-            <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">C3</button>
-            <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">D3</button>
-            <button type="button" class="btn btn-primary" onClick="location.href='reserv_fin.html'">E3</button>
-            <button type="button" class="btn btn-danger" onClick="location.href='reserv_fin.html'">F3</button>
-          </div>
+          <h2 class="section-title">좌석 선택</h2>
+          <p class="section-lead">&nbsp;</p>
 
+          <div class="buttons">
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">01</button>
+            <button type="button" class="btn" disabled>02</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">03</button>
+            <button type="button" class="btn" disabled>04</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">05</button>
+            <button type="button" class="btn" disabled>06</button>
+            <button type="button" class="btn" disabled>07</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">08</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">09</button>
+            <button type="button" class="btn" disabled>10</button>
+          </div>
+          <p></p>
+          <div class="buttons">
+            <button type="button" class="btn" disabled>11</button>
+            <button type="button" class="btn" disabled>12</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">13</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">14</button>
+            <div class="btn"></div><div class="btn"></div><div class="btn"></div>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">15</button>
+            <button type="button" class="btn btn-primary" onclick="finishReserv(this.innerText)">16</button>
+            <button type="button" class="btn" disabled>17</button>
+            <button type="button" class="btn btn-primary" onclick="finishReserv(this.innerText)">18</button>
+          </div>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">19</button>
+            <button type="button" class="btn" disabled>20</button>
+            <button type="button" class="btn" disabled>21</button>
+            <button type="button" class="btn" disabled>22</button>
+            <div class="btn"></div><div class="btn"></div><div class="btn"></div>
+            <button type="button" class="btn" disabled>23</button>
+            <button type="button" class="btn" disabled>24</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">25</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">26</button>
+          </div>
+          <p></p>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">27</button>
+            <button type="button" class="btn" disabled>28</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">29</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">30</button>
+            <div class="btn"></div><div class="btn"></div><div class="btn"></div>
+            <button type="button" class="btn" disabled>31</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">32</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">33</button>
+            <button type="button" class="btn" disabled>34</button>
+          </div>
+          <div class="buttons">
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">35</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">36</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">37</button>
+            <button type="button" class="btn" disabled>38</button>
+            <div class="btn"></div><div class="btn"></div><div class="btn"></div>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">39</button>
+            <button type="button" class="btn" disabled>40</button>
+            <button type="button" class="btn" disabled>41</button>
+            <button type="button" class="btn btn-primary" onClick="finishReserv(this.innerText)">42</button>
+          </div>
         </section>
       </div>
     </div>
@@ -188,9 +226,10 @@
   
    <!-- JS Libraies -->
    <script src="assets/modules/prism/prism.js"></script>
+   <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
    <!-- Page Specific JS File -->
-   <script src="assets/js/page/bootstrap-modal.js"></script>
+   <script src="assets/js/page/modules-sweetalert.js"></script>
   '
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
