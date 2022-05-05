@@ -118,14 +118,17 @@
         </ul>
       </nav>
 
-      <nav class="navbar navbar-secondary navbar-expand-lg">
+      <nav class="navbar navbar-secondary navbar-expand-lg shadow-none bg-white">
         <div class="container">
           <ul class="navbar-nav">
             <li class="nav-item">
-              <a href="#" class="nav-link"><span>좌석예약</span></a>
+              <a href="./main.html" class="nav-link"><span>HOME</span></a>
             </li>
             <li class="nav-item">
-              <a href="./reserv_history.html" class="nav-link"><span>예약조회</span></a>
+                <a class="nav-link"><span class="fas fa-chevron-right text-muted"></span></a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link"><span class="text-primary">좌석 예약</span></a>
             </li>
           </ul>
         </div>
@@ -136,37 +139,76 @@
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
-            <h5>열람실 선택</h5>
+          <h2 class="section-title">열람실 선택</h2>
+          <p class="section-lead">&nbsp;</p>
 
-            <div class="card-body">
-                <nav aria-label="breadcrumb">
-                  <ol class="breadcrumb bg-primary text-white-all">
-                    <li class="breadcrumb-item"><a href="#"> 제 1 열람실 </a></li>
-                    <li class="breadcrumb-item"> 잔여 좌석 (12/123) </li>
+          
+          <div class="row">
+            <div class="col-12">
+              <div class="card card-primary">
+                <div class="card-header" onclick="location.href='./reserv_seat.html'">
+                  <h4 class="text-dark">제 1 열람실</h4>/&nbsp;&nbsp;
+                  잔여 좌석&nbsp;&nbsp;<span class="badge badge-success">12/123</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card card-primary">
+                <div class="card-header" onclick="location.href='./reserv_seat.html'">
+                  <h4 class="text-dark">제 2 열람실</h4>/&nbsp;&nbsp;
+                  잔여 좌석&nbsp;&nbsp;<span class="badge badge-warning">23/42</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card card-secondary bg-secondary">
+                <div class="card-header" onclick="swal('이용 불가', '현재 이용 가능하지 않은 열람실입니다.', 'warning')">
+                  <h4 class="text-dark">제 3 열람실</h4>/&nbsp;&nbsp;
+                  잔여 좌석&nbsp;&nbsp;<span class="badge badge-dark">0/125</span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12">
+              <div class="card card-primary">
+                <div class="card-header" onclick="location.href='./reserv_seat.html'">
+                  <h4 class="text-dark">제 4 열람실</h4>/&nbsp;&nbsp;
+                  잔여 좌석&nbsp;&nbsp;<span class="badge badge-danger">100/100</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+          <div class="card-body">
+
+              <nav aria-label="breadcrumb">
+                <ol class="breadcrumb bg-primary text-white-all">
+                  <li class="breadcrumb-item"><a href="./reserv_seat.html"> 제 1 열람실 </a></li>
+                  <li class="breadcrumb-item"> 잔여 좌석 (12/123) </li>
+                </ol>
+              </nav>
+
+              <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb bg-warning text-white-all">
+                    <li class="breadcrumb-item"><a href="./reserv_seat.html"> 제 2 열람실 </a></li>
+                    <li class="breadcrumb-item"> 잔여 좌석 (23/70) </li>
                   </ol>
                 </nav>
 
                 <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-warning text-white-all">
-                      <li class="breadcrumb-item"><a href="#"> 제 2 열람실 </a></li>
-                      <li class="breadcrumb-item"> 잔여 좌석 (23/70) </li>
-                    </ol>
-                  </nav>
+                  <ol class="breadcrumb bg-success text-white-all">
+                    <li class="breadcrumb-item"><a href="./reserv_seat.html"> 제 3 열람실 </a></li>
+                    <li class="breadcrumb-item"> 잔여 좌석 (75/125) </li>
+                  </ol>
+                </nav>
 
-                  <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-success text-white-all">
-                      <li class="breadcrumb-item"><a href="#"> 제 3 열람실 </a></li>
-                      <li class="breadcrumb-item"> 잔여 좌석 (75/125) </li>
-                    </ol>
-                  </nav>
-
-                  <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb bg-danger text-white-all">
-                      <li class="breadcrumb-item"><a href="#"> 제 4 열람실 </a></li>
-                      <li class="breadcrumb-item"> 잔여 좌석 (100/100) </li>
-                    </ol>
-                  </nav>
-              </div>
+                <nav aria-label="breadcrumb">
+                  <ol class="breadcrumb bg-danger text-white-all">
+                    <li class="breadcrumb-item"><a href="./reserv_seat.html"> 제 4 열람실 </a></li>
+                    <li class="breadcrumb-item"> 잔여 좌석 (100/100) </li>
+                  </ol>
+                </nav>
+          </div>
         </section>
       </div>
     </div>
@@ -182,8 +224,10 @@
   <script src="assets/js/stisla.js"></script>
   
   <!-- JS Libraies -->
+  <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Page Specific JS File -->
+  <script src="assets/js/page/modules-sweetalert.js"></script>
   
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
