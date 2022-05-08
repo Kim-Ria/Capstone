@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
@@ -15,30 +16,32 @@
   <!-- Template CSS -->
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="assets/css/components.css">
-<!-- Start GA -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+  <!-- Start GA -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+  <script>
 
-  gtag('config', 'UA-94034622-3');
-</script>
-<style>
-    body::before{
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-image: url("assets/img/indexBackground.jpg");
-        background-size: 100vw 100vh;
-        filter: blur(5px);
-        z-index: -1; 
-        content: "";
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+
+    gtag('config', 'UA-94034622-3');
+  </script>
+  <style>
+    body::before {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: url("assets/img/indexBackground.jpg");
+      background-size: 100vw 100vh;
+      filter: blur(5px);
+      z-index: -1;
+      content: "";
     }
-</style>
-<!-- /END GA --></head>
+  </style>
+  <!-- /END GA -->
+</head>
 
 <body>
   <div id="app">
@@ -50,42 +53,42 @@
               <img src="assets/img/logo2.PNG" alt="logo" width="120" class="shadow-dark rounded-circle">
             </div>
 
-            <div class="card card-primary">
-              <div class="card-header"><h4>로그인</h4></div>
+            <div class="card card-primary" id="firebaseui-auth-container">
+              <div class="card-header">
+                <h4>로그인</h4>
+              </div>
 
               <div class="card-body">
-                <form method="post" class="needs-validation" novalidate="">
-                  <div class="form-group">
-                    <label for="text">아이디</label>
-                    <input id="userId" type="text" class="form-control" name="userId" tabindex="1" required autofocus>
-                    <div class="invalid-feedback" id="feedbackId">
-                      아이디를 입력하세요.
-                    </div>
-                  </div>
 
-                  <div class="form-group">
-                    <div class="d-block">
-                    	<label for="password" class="control-label">비밀번호</label>
-                      <div class="float-right">
-                        <a href="./find_password.html" class="text-small">
-                          비밀번호 찾기
-                        </a>
-                      </div>
-                    </div>
-                    <input id="password" type="password" class="form-control" name="password" tabindex="2" required>
-                    <div class="invalid-feedback" id="feedbackPw">
-                      비밀번호를 입력하세요.
-                    </div>
-                  </div>
+                <div class="form-group">
+                  <label for="text">아이디</label>
+                  <input id="userId" type="text" class="form-control" name="userId" required autofocus>
+                </div>
 
-                  <div class="form-group">
-                    <button type="button" onclick="login()" class="btn btn-primary btn-lg btn-block" tabindex="4">로그인</button>
+                <div class="form-group">
+                  <div class="d-block">
+                    <label for="password" class="control-label">비밀번호</label>
+                    <div class="float-right">
+                      <a href="./find_password.html" class="text-small">
+                        비밀번호 찾기
+                      </a>
+                    </div>
                   </div>
-                </form>
+                  <input id="password" type="password" class="form-control" name="password" tabindex="2" required>
+                  <div class="invalid-feedback" id="feedbackPw">
+                    비밀번호를 입력하세요.
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <button type="button" class="btn btn-primary btn-lg btn-block" id="loginButton"
+                    tabindex="4">로그인</button>
+                </div>
+
               </div>
             </div>
             <div class="mt-5 text-center text-white">
-                처음 방문하셨나요?&nbsp;&nbsp;<a href="./register.html" class="text-warning">회원가입</a>
+              처음 방문하셨나요?&nbsp;&nbsp;<a href="./register.html" class="text-warning">회원가입</a>
             </div>
             <div class="simple-footer">
               Copyright &copy; Stisla 2018
@@ -104,15 +107,82 @@
   <script src="assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
   <script src="assets/modules/moment.min.js"></script>
   <script src="assets/js/stisla.js"></script>
-  
+
   <!-- JS Libraies -->
   <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Page Specific JS File -->
   <script src="assets/js/page/modules-sweetalert.js"></script>
-  
+
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
+
+
+  <!-- Firebase 연결하는 코드-->
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-firestore.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
+
+  <script>
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+      apiKey: "AIzaSyDRpI3eSY34j9tnVT5RSojCXyKahyTXjY0",
+      authDomain: "capstone-51498.firebaseapp.com",
+      databaseURL: "https://capstone-51498-default-rtdb.firebaseio.com",
+      projectId: "capstone-51498",
+      storageBucket: "capstone-51498.appspot.com",
+      messagingSenderId: "509305643023",
+      appId: "1:509305643023:web:3e88f2c4ac6e5668b4437a",
+      measurementId: "G-MZKZ358C5T"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <script>
+    const buttons = document.getElementById("loginButton");
+
+    const email = document.getElementById('userId');
+    const pw = document.getElementById("password");
+
+    firebaseEmailAuth = firebase.auth(); //파이어베이스 인증 객체
+    firebaseDatabase = firebase.database(); //파이어베이스 데이터베이스 
+
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+
+    buttons.addEventListener('click', (e) => {
+      e.preventDefault();
+
+      firebaseEmailAuth.signInWithEmailAndPassword(email.value, pw.value).then(function (firebaseUser) {
+
+        //성공하면 firebaseUser에 유저 정보 값이 담겨 넘어온다.
+        loginSuccess(firebaseUser);
+      })
+        .catch(function (error) {
+          // 실패했을 때 에러 처리
+          alert(error);
+          alert("로그인 실패");
+        });
+    });
+
+    function loginSuccess(firebaseUser){
+       alert("로그인 성공");
+ 
+    //로그인 성공한 유저 id 확인해 보기 - firebase database에 접근해서 데이터 조회 하는 함수
+   firebaseDatabase.ref("users/"+firebaseUser.uid).once('value').then(function(snapshot){
+        console.log(snapshot.val().name)
+    });
+ 
+    //메인 페이지로 이동
+    window.location.href = "/main.html"
+    }
+
+  </script>
+
 </body>
+
 </html>
