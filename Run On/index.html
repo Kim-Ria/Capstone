@@ -152,34 +152,26 @@
     firebaseEmailAuth = firebase.auth(); //파이어베이스 인증 객체
     firebaseDatabase = firebase.database(); //파이어베이스 데이터베이스 
 
-    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    console.log(email.value)
+    console.log(pw.value)
 
     buttons.addEventListener('click', (e) => {
       e.preventDefault();
 
-      firebaseEmailAuth.signInWithEmailAndPassword(email.value, pw.value).then(function (firebaseUser) {
-
-        //성공하면 firebaseUser에 유저 정보 값이 담겨 넘어온다.
-        loginSuccess(firebaseUser);
-      })
-        .catch(function (error) {
-          // 실패했을 때 에러 처리
-          alert(error);
-          alert("로그인 실패");
+      firebase.auth().signInWithEmailAndPassword(email.value, pw.value)
+        .then((userCredential) => {
+          var user = userCredential.user;
+          console.log(user)
+          console.log(user.uid)
+          
+          alert("로그인 성공")
+        })
+        .catch((error) => {
+          var errorCode = error.code;
+          var errorMessage = error.message;
+          alert(error)
         });
     });
-
-    function loginSuccess(firebaseUser){
-       alert("로그인 성공");
- 
-    //로그인 성공한 유저 id 확인해 보기 - firebase database에 접근해서 데이터 조회 하는 함수
-   firebaseDatabase.ref("users/"+firebaseUser.uid).once('value').then(function(snapshot){
-        console.log(snapshot.val().name)
-    });
- 
-    //메인 페이지로 이동
-    window.location.href = "/main.html"
-    }
 
   </script>
 
