@@ -90,7 +90,7 @@
                           <div class="card-header-action">
                             <form action="#" method="GET">
                               <div class="input-group">
-                                <input type="text" class="form-control" placeholder="아이디" id="userId" name="userId">
+                                <input type="text" class="form-control" placeholder="이름" id="userName" name="userName">
                                 <div class="input-group-btn">
                                   <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
                                 </div>
@@ -170,9 +170,9 @@
     window.onload = function(){
       var no = 1;
 
-      var searchId = (new URL(document.location)).searchParams.get('userId');
+      var searchName = (new URL(document.location)).searchParams.get('userName');
 
-      if(searchId=='' || searchId=='#'){ // 전체 조회
+      if(searchName==null || searchName=='' || searchName=='#'){ // 전체 조회
         var query = firebase.database().ref("userInfo").orderByKey();
         query.once("value")
           .then(function(snapshot) {
@@ -186,8 +186,20 @@
                 + '</tr>';
           });
         });
-      }else{ // 아이디 입력
-        console.log(searchId);
+      }else{ // 이름 입력됨
+        var query = firebase.database().ref("userInfo").orderByChild('name').equalTo(searchName);
+        query.once("value")
+          .then(function(snapshot) {
+            snapshot.forEach(function(childSnapshot) {
+              document.querySelector('#userTable').innerHTML += '<tr>'
+                +'<td>'+ (no++) + '</td>'
+                + '<td>'+ childSnapshot.val().id + '</td>'
+                + '<td>'+ childSnapshot.val().name + '</td>'
+                + '<td>'+ childSnapshot.val().phone + '</td>'
+                + '<td><button class="btn btn-sm" onclick="addBlacklistAdmin()">등록</button></td>'
+                + '</tr>';
+          });
+        });
       }
     }
   </script>
