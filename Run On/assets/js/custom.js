@@ -35,6 +35,12 @@ function finishReserv(no){
   });
 }
 
+/** reserv_room.html */
+/** 시간 선택후 실행되는 함수 */
+function chooseTime(no){
+  console.log(no);
+}
+
 /** reserv_detail.html */
 /** 예약 상세 조회 페이지 alert */
 // 예약 취소 alert
