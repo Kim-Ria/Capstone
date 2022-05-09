@@ -163,7 +163,7 @@
 
       const database = firebase.database();
 
-      database.ref('userInfo').set({
+      database.ref('userInfo').update({
         "users": {
           name: userName,
           id: userEmail,
