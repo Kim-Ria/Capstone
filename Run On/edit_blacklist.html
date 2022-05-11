@@ -11,8 +11,7 @@
     <link rel="stylesheet" href="assets/modules/fontawesome/css/all.min.css">
 
     <!-- CSS Libraries -->
-    <link rel="stylesheet" href="assets/modules/bootstrap-social/bootstrap-social.css">
-    <link rel="stylesheet" href="assets/modules/summernote/summernote-bs4.css">
+    <link rel="stylesheet" href="assets/modules/prism/prism.css">
 
     <!-- Template CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
@@ -130,10 +129,12 @@
     <script src="assets/js/stisla.js"></script>
 
     <!-- JS Libraies -->
-    <script src="assets/modules/summernote/summernote-bs4.js"></script>
+    <script src="assets/modules/prism/prism.js"></script>
+    <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
     <!-- Page Specific JS File -->
-
+    <script src="assets/js/page/modules-sweetalert.js"></script>
+    
     <!-- Template JS File -->
     <script src="assets/js/scripts.js"></script>
     <script src="assets/js/custom.js"></script>
@@ -147,40 +148,50 @@
             var key = (new URL(document.location)).searchParams.get('key');
             var count = document.getElementById('count').value;
             var query = firebase.database().ref("blacklist").child(key);
-            
-            if(count==3){ // 이용 정지 기간 추가
-                warnDate = getToday();
 
-                // 이용 정지 기간 계산 (현재 + 30일)
-                var date = new Date();
-                var after30days = (new Date(Date.parse(date) + 30*1000*60*60*24)) // 30일 후
-                
-                // yyyy-mm-dd 형식으로 변환
-                var year = after30days.getFullYear();
-                var month = ('0' + (after30days.getMonth() + 1)).slice(-2);
-                var day = ('0' + after30days.getDate()).slice(-2);
-                var endDate = year + '-' + month + '-' + day;
+            swal({
+                title: "블랙리스트",
+                text: document.getElementById("userName").innerText+"님의 정보를 수정하시겠습니까?",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((cancel) => {
+                if (cancel) {
+                    if(count==3){ // 이용 정지 기간 추가
+                        warnDate = getToday();
 
-                // DB update
-                query.update({
-                    count: count,
-                    warnDate: warnDate,
-                    endDate: endDate // coulmn 추가
-                });
-            }else if(count==0){ // 블랙리스트에서 삭제
-                query.set({});
-            }else{ // 
-                var warnDate = document.getElementById('warnDate').value;
-                
-                query.set({
-                    count: count,
-                    warnDate: warnDate
-                });
-            }
+                        // 이용 정지 기간 계산 (현재 + 30일)
+                        var date = new Date();
+                        var after30days = (new Date(Date.parse(date) + 30*1000*60*60*24)) // 30일 후
+                        
+                        // yyyy-mm-dd 형식으로 변환
+                        var year = after30days.getFullYear();
+                        var month = ('0' + (after30days.getMonth() + 1)).slice(-2);
+                        var day = ('0' + after30days.getDate()).slice(-2);
+                        var endDate = year + '-' + month + '-' + day;
 
-            alert('수정 완료');
-
-            location.href="./adminBlacklist.html";
+                        // DB update
+                        query.update({
+                            count: count,
+                            warnDate: warnDate,
+                            endDate: endDate // coulmn 추가
+                        });
+                    }else if(count==0){ // 블랙리스트에서 삭제
+                        query.set({});
+                    }else{ // 
+                        var warnDate = document.getElementById('warnDate').value;
+                        
+                        query.set({
+                            count: count,
+                            warnDate: warnDate
+                        });
+                    }
+                    swal("수정되었습니다.", {
+                        icon: "success",
+                    }).then(() => { location.href = './adminBlacklist.html'; })
+                }
+            });
         }
     </script>
 </body>
