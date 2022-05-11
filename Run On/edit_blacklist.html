@@ -76,10 +76,10 @@
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h4 id="userName">이름</h4>&nbsp;|&nbsp;&nbsp;&nbsp;<div id="uesrId">id</div>
+                                        <h4 id="userName">이름</h4>&nbsp;|&nbsp;&nbsp;&nbsp;<div id="userId">id</div>
                                     </div>
                                     <div class="card-body">
-                                        <form class="row">
+                                        <div class="row">
                                             <div class="form-group col-lg-6 col-12">
                                                 <label>경고 날짜</label>
                                                 <div class="input-group">
@@ -87,8 +87,7 @@
                                                         <div class="input-group-text"><i class="fas fa-calendar"></i>
                                                         </div>
                                                     </div>
-                                                    <input type="date" class="form-control" name="warnDate"
-                                                        id="warnDate">
+                                                    <input type="date" class="form-control" name="warnDate" id="warnDate" max="">
                                                 </div>
                                             </div>
                                             <div class="form-group col-lg-6 col-12">
@@ -101,9 +100,8 @@
                                                     <input type="number" min="0" max="3" name="count" id="count">
                                                 </div>
                                             </div>
-                                            <button class="btn btn-primary btn-block" onclick="editBlacklist(id)">수정
-                                                완료</button>
-                                        </form>
+                                            <button class="btn btn-primary btn-block" onclick="editBlacklist()">수정 완료</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -142,7 +140,47 @@
 
     <script>
         window.onload = function () {
-            setEditBlackData();
+            setEditBlack();
+        }
+
+        function editBlacklist(){
+            var key = (new URL(document.location)).searchParams.get('key');
+            var count = document.getElementById('count').value;
+            var query = firebase.database().ref("blacklist").child(key);
+            
+            if(count==3){ // 이용 정지 기간 추가
+                warnDate = getToday();
+
+                // 이용 정지 기간 계산 (현재 + 30일)
+                var date = new Date();
+                var after30days = (new Date(Date.parse(date) + 30*1000*60*60*24)) // 30일 후
+                
+                // yyyy-mm-dd 형식으로 변환
+                var year = after30days.getFullYear();
+                var month = ('0' + (after30days.getMonth() + 1)).slice(-2);
+                var day = ('0' + after30days.getDate()).slice(-2);
+                var endDate = year + '-' + month + '-' + day;
+
+                // DB update
+                query.update({
+                    count: count,
+                    warnDate: warnDate,
+                    endDate: endDate // coulmn 추가
+                });
+            }else if(count==0){ // 블랙리스트에서 삭제
+                query.set({});
+            }else{ // 
+                var warnDate = document.getElementById('warnDate').value;
+                
+                query.set({
+                    count: count,
+                    warnDate: warnDate
+                });
+            }
+
+            alert('수정 완료');
+
+            location.href="./adminBlacklist.html";
         }
     </script>
 </body>
