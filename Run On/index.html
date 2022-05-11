@@ -152,23 +152,19 @@
     firebaseEmailAuth = firebase.auth(); //파이어베이스 인증 객체
     firebaseDatabase = firebase.database(); //파이어베이스 데이터베이스 
 
-    console.log(email.value)
-    console.log(pw.value)
-
     buttons.addEventListener('click', (e) => {
       e.preventDefault();
 
       firebase.auth().signInWithEmailAndPassword(email.value, pw.value)
         .then((userCredential) => {
           var user = userCredential.user;
-          console.log(user)
 
           if (user.uid == '9yTaNsMigxdATI4pBWUe1Fd9tXG3'){
               window.location.href = '/main_admin.html'
           }
 
           else {
-            console.log("일반회원")
+            window.location.href = '/main.html?uid='+user.uid
           }
 
 
