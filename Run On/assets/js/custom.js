@@ -154,9 +154,9 @@ function viewMember() {
           + '<td>' + childSnapshot.val().phone + '</td>';
 
         // 블랙리스트에 존재하는지 체크
-        var isBlack = firebase.database().ref("blacklist").orderByChild('id').equalTo(childSnapshot.val().id);
+        var isBlack = firebase.database().ref("blacklist").orderByKey().equalTo(childSnapshot.key);
         isBlack.once("value").then(function (black) {
-          if (black.val() == '' || black.val() == null) { // 블랙리스트 X
+          if (black.val() == null) { // 블랙리스트 X
             var clickFunction = 'addBlacklistAdmin(this.parentNode.parentNode)';
             htmlString += '<td><button class="btn btn-sm" onclick=' + clickFunction + '>등록</button></td></tr>';
           } else { // 블랙리스트 존재
@@ -174,9 +174,15 @@ function viewMember() {
         })
       });
     });
-  } else { // 이름 입력됨
+  } else { // 아이디 입력됨
     var query = firebase.database().ref("userInfo").orderByChild('id').equalTo(searchId);
     query.once("value").then(function (snapshot) {
+      // 검색 결과 없음
+      if(snapshot.val() == null){
+        document.querySelector('#userList').innerHTML += '<tr><td colspan=5>검색 결과 없음</td></tr>';
+      }
+
+      // 검색 결과 존재
       snapshot.forEach(function (childSnapshot) {
         // Table 추가 html 문자열 준비
         var htmlString = '<tr>'
@@ -186,10 +192,11 @@ function viewMember() {
           + '<td>' + childSnapshot.val().phone + '</td>';
 
         // 블랙리스트에 존재하는지 체크
-        var isBlack = firebase.database().ref("blacklist").orderByChild('id').equalTo(childSnapshot.val().id);
+        var isBlack = firebase.database().ref("blacklist").orderByKey().equalTo(childSnapshot.key);
         isBlack.once("value").then(function (black) {
-          if (black.val() == '' || black.val() == null) { // 블랙리스트 X
-            htmlString += '<td><button class="btn btn-sm" onclick="addBlacklistAdmin(this.parentNode.parentNode)">등록</button></td></tr>';
+          if (black.val() == null) { // 블랙리스트 X
+            var clickFunction = 'addBlacklistAdmin(this.parentNode.parentNode)';
+            htmlString += '<td><button class="btn btn-sm" onclick=' + clickFunction + '>등록</button></td></tr>';
           } else { // 블랙리스트 존재
             black.forEach(function (b) {
               if (b.val().count < 3) { // 경고 횟수 3 미만
@@ -197,7 +204,7 @@ function viewMember() {
               } else { // 경고 횟수 3
                 htmlString += '<td><div class="badge badge-danger">' + b.val().count + '/3</div></td></tr>';
               }
-            });
+            })
           }
 
           // Table 추가
@@ -220,16 +227,10 @@ function addBlacklistAdmin(userInfo, key) {
   })
     .then((cancel) => {
       if (cancel) {
-        // 사용자 ID, 이름
+        // 사용자 ID, 이름, 오늘 날짜
         var userId = userInfo.cells[1].innerText;
         var userName = userInfo.cells[2].innerText;
-
-        // 현째 날짜 구하기
-        var today = new Date();
-        var year = today.getFullYear();
-        var month = ('0' + (today.getMonth() + 1)).slice(-2);
-        var day = ('0' + today.getDate()).slice(-2);
-        var dateString = year + '-' + month + '-' + day;
+        var today = getToday();
 
         // firebase 연결
         const queryUser = firebase.database().ref('userInfo').orderByChild('id').equalTo(userId);
@@ -240,7 +241,7 @@ function addBlacklistAdmin(userInfo, key) {
             var key = getKey.key;
             queryBlack.child(key).set({
               count: 1, // 새로 등록할 때 경고 횟수 1
-              warnDate: dateString // 오늘 날짜 = 경고 받은 날짜 (경고 횟수 3일 때 endDate 구함)
+              warnDate: today // 오늘 날짜 = 경고 받은 날짜 (경고 횟수 3일 때 endDate 구함)
             });
           });
         });
@@ -268,12 +269,19 @@ function viewBlacklist() {
         var queryUser = firebase.database().ref("userInfo").orderByKey().equalTo(childSnapshot.key);
         queryUser.once("value").then(function(userlist){
           userlist.forEach(function(user){
-            // Table 추가 html 문자열 준비
-            var htmlString = '<tr>'
-              + '<td>' + (no++) + '</td>'
-              + '<td>' + user.val().id + '</td>'
-              + '<td>' + user.val().name + '</td>'
-              + '<td>' + childSnapshot.val().warnDate + '</td>';
+             // Table 추가 html 문자열 준비
+             var htmlString = '<tr>'
+             + '<td>' + (no++) + '</td>'
+             + '<td>' + user.val().id + '</td>'
+             + '<td>' + user.val().name + '</td>'
+             + '<td>' + childSnapshot.val().warnDate + '</td>';
+
+            // 경고 횟수 3회 미만 = 
+            if(childSnapshot.val().endDate == undefined){
+              htmlString += '<td>-</td>'
+            }else{
+              htmlString += '<td>' + childSnapshot.val().endDate + '</td>';
+            }
 
             // Blacklist 경고 횟수 Check
             if (childSnapshot.val().count < 3) { // 경고횟수 3회 미만
@@ -292,51 +300,76 @@ function viewBlacklist() {
         });
       });
     });
-  } else { // 이름 입력됨
-    var queryBlack = firebase.database().ref("blacklist").orderByKey();
-    queryBlack.once("value").then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        // userInfo에서 회원 아이디, 이름 정보 가져오기
-        var queryUser = firebase.database().ref("userInfo").orderByKey().equalTo(childSnapshot.key);
-        queryUser.once("value").then(function(userlist){
-          userlist.forEach(function(user){
-            // Table 추가 html 문자열 준비
-            var htmlString = '<tr>'
-              + '<td>' + (no++) + '</td>'
-              + '<td>' + user.val().id + '</td>'
-              + '<td>' + user.val().name + '</td>'
-              + '<td>' + childSnapshot.val().warnDate + '</td>';
+  } else { // 아이디 입력됨
+    var key;
+    var htmlString;
 
-            // Blacklist 경고 횟수 Check
-            if (childSnapshot.val().count < 3) { // 경고횟수 3회 미만
-              htmlString += '<td><div class="badge badge-success">' + childSnapshot.val().count + '/3</div></td>';
-            } else { // 경고횟수 3회
-              htmlString += '<td><div class="badge badge-danger">' + childSnapshot.val().count + '/3</div></td>';
+    // 1. userInfo에서 입력된 아이디의 key값 가져오기
+    var queryCheckId = firebase.database().ref("userInfo").orderByChild('id').equalTo(searchId);
+    queryCheckId.once("value").then(function(userList){
+      if(userList.val() != null){ // 검색한 아이디 회원 존재
+        userList.forEach(function(user){
+          // 2. blacklist에 해당 key값 있는지 확인
+          var queryBlack = firebase.database().ref("blacklist").orderByKey().equalTo(user.key);
+          queryBlack.once("value").then(function(blackList){
+            if(blackList.val() != null){ // 검색한 아이디 블랙리스트에 존재 (검색 결과 존재)
+              blackList.forEach(function(black){
+                // Table 추가 html 문자열 준비
+                var htmlString = '<tr>'
+                + '<td>' + (no++) + '</td>'
+                + '<td>' + user.val().id + '</td>'
+                + '<td>' + user.val().name + '</td>'
+                + '<td>' + black.val().warnDate + '</td>';
+
+                // 경고 횟수 3회 미만 = 이용 정지 없음
+                if(black.val().endDate == undefined){
+                  htmlString += '<td>-</td>'
+                }else{
+                  htmlString += '<td>' + black.val().endDate + '</td>';
+                }
+
+                // Blacklist 경고 횟수 Check
+                if (black.val().count < 3) { // 경고횟수 3회 미만
+                  htmlString += '<td><div class="badge badge-success">' + black.val().count + '/3</div></td>';
+                } else { // 경고횟수 3회
+                  htmlString += '<td><div class="badge badge-danger">' + black.val().count + '/3</div></td>';
+                }
+
+                // 관리 버튼 추가
+                var clickFunction = 'location.href="./edit_blacklist.html?key='+black.key+'"';
+                htmlString += '<td><button class="btn btn-sm" onclick='+clickFunction+'>관리</button></td></tr>'
+
+                // Table 추가
+                document.querySelector('#blackList').innerHTML += htmlString;
+              })
+            }else{ // 블랙리스트 X
+              console.log("블랙리스트 아님");
+              htmlString = '<tr><td colspan=7>해당 아이디의 블랙리스트는 존재하지 않습니다.</td></tr>';
+              document.querySelector('#blackList').innerHTML += htmlString;
             }
-
-            // 관리 버튼 추가
-            var clickFunction = 'location.href="./edit_blacklist.html?key='+childSnapshot.key+'"';
-            htmlString += '<td><button class="btn btn-sm" onclick='+clickFunction+'>관리</button></td></tr>'
-
-            // Table 추가
-            document.querySelector('#blackList').innerHTML += htmlString;
           })
-        });
-      });
-    });
+        })
+      } else { // 회원 X
+        console.log("회원이 아님");
+        htmlString = '<tr><td colspan=7>해당 아이디의 회원은 존재하지 않습니다.</td></tr>';
+        document.querySelector('#blackList').innerHTML += htmlString;
+      }
+    })
   }
 }
 
-function setEditBlackData() {
+function setEditBlack() {
   var key = (new URL(document.location)).searchParams.get('key');
-  console.log(key);
 
   // 해당 key 블랙리스트 정보 가져오기
   var queryBlack = firebase.database().ref("blacklist").orderByKey().equalTo(key);
   
   queryBlack.once("value").then(function(blackList){
     blackList.forEach(function(black){
-      document.getElementById('warnDate').value = black.val().warnDate;
+      var warnDate = document.getElementById('warnDate');
+      warnDate.value = black.val().warnDate;
+      warnDate.setAttribute('max', getToday()); // 경고 날짜 수정 가능한 max 값 설정 (미래 경고 X)
+
       document.getElementById('count').value = black.val().count;
     });
   });
@@ -345,23 +378,9 @@ function setEditBlackData() {
   var queryUser = firebase.database().ref("userInfo").orderByKey().equalTo(key);
   queryUser.once("value").then(function(userList){
     userList.forEach(function(user){
-      console.log(user.val().id);
-      console.log(document.getElementById('userId'));
-      document.getElementById('uesrId').innerText = user.val().id;
+      document.getElementById('userId').innerText = user.val().id;
       document.getElementById('userName').innerText = user.val().name;
     });
-  });
-
-}
-
-
-function editBlacklist() {
-  console.log(document.getElementById('userId').innerText);
-
-  var query = firebase.database().ref("blacklist").orderByChild('id').equalTo(userId);
-  query.update({
-    count: "",
-    warnDate: ""
   });
 }
 
@@ -371,4 +390,19 @@ function editBlacklist() {
 /** 좌석 관리 */
 function editSeat(no) {
   swal("좌석관리", no + "번 좌석", "warning");
+}
+
+
+/** 오늘 날짜 구하는 함수 */
+function getToday(){
+  // 현재 시간 구하기
+  var today = new Date();
+  
+  // yyyy-mm-dd 형식으로 변환
+  var year = today.getFullYear();
+  var month = ('0' + (today.getMonth() + 1)).slice(-2);
+  var day = ('0' + today.getDate()).slice(-2);
+  var dateString = year + '-' + month + '-' + day;
+
+  return dateString;
 }
