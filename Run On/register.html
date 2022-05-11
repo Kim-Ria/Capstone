@@ -158,20 +158,33 @@
       const userEmail = document.getElementById('email').value;
       const userPhone = document.getElementById('phone').value;
       const userAddress = document.getElementById('addr').value;
-
-      firebase.auth().createUserWithEmailAndPassword(userEmail, userPwd1)
-
       const database = firebase.database();
 
-      database.ref('userInfo').update({
-        "users": {
-          name: userName,
-          id: userEmail,
-          password: userPwd1,
-          phone: userPhone,
-          address: userAddress
-        }
-      })
+      firebase.auth().createUserWithEmailAndPassword(userEmail, userPwd1)
+        .then((userCredential) => {
+          // 회원가입 성공
+          const user = userCredential.user;
+          const userId = user.uid
+          console.log(userId)
+
+          database.ref('userInfo').update({
+            [userId]: {
+              uId: userId,
+              name: userName,
+              id: userEmail,
+              password: userPwd1,
+              phone: userPhone,
+              address: userAddress
+            }
+          })
+          alert('회원가입 성공')
+        })
+        .catch((error) => {
+          // 회원가입 실패
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          alert(`회원가입 실패 | Error Message : ${errorMessage}`)
+        });
     }
   </script>
 
