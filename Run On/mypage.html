@@ -145,15 +145,14 @@
                     <div class="profile-widget-items">
                       <div class="profile-widget-item">
                         <div class="profile-widget-item-label">이름</div>
-                        <div class="profile-widget-item-value">신동준</div>
+                        <div class="profile-widget-item-value" id="name2"></div>
                       </div>
                     </div>
                     <form method="post" class="needs-validation" novalidate="">
                       <div class="card-body">
                         <div class="row">
-                          <div class="form-group col-md-12 col-12">
+                          <div class="form-group col-md-12 col-12" id="inputEmail">
                             <label>이메일</label>
-                            <input type="email" class="form-control" value="mail@naver.com" readonly>
                           </div>
                         </div>
                         <div class="row">
@@ -253,9 +252,14 @@
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
       console.log(snapshot.val());
       const nameArea = document.getElementById('name');
+      const nameArea2 = document.getElementById('name2');
       const userName = snapshot.val().name
 
       nameArea.append(userName)
+      nameArea2.append(userName)
+
+      document.querySelector('#inputEmail').innerHTML += '<input type="email" class="form-control" value="'+snapshot.val().id+'" readonly>'
+    
     }).catch((error) => {
       console.error(error);
     });
