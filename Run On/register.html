@@ -35,7 +35,8 @@
         <div class="row">
           <div class="col-12 col-sm-10 offset-sm-1 col-md-8 offset-md-2 col-lg-8 offset-lg-2 col-xl-8 offset-xl-2">
             <div class="login-brand">
-              <a href="index.html"> <img src="./assets/img/logo2.PNG" alt="logo" width="120" class="shadow-light rounded-circle"> </a>
+              <a href="index.html"> <img src="./assets/img/logo2.PNG" alt="logo" width="120"
+                  class="shadow-light rounded-circle"> </a>
             </div>
 
             <div class="card card-primary">
@@ -44,6 +45,8 @@
               </div>
 
               <div class="card-body">
+                <!--<form method="POST" action="./index.html">-->
+
                 <div class="form-group">
                   <label for="name">이름</label>
                   <input id="name" type="text" class="form-control" name="name">
@@ -51,14 +54,22 @@
                   </div>
                 </div>
                 <div class="row">
-                  <div class="form-group col-12"> 
+                  <!--
+                  <div class="form-group col-10">
+                  -->
+                  <div class="form-group col-12">
                     <label for="email">이메일</label>
                     <input id="email" type="email" class="form-control" name="email" autofocus>
                   </div>
+                  <!--
+                  <div class="form-group col-2">
+                    <button type="button" id="idConfirm" class="btn btn-block p-2 pl-3 pr-3 mt-4">중복체크</button>
+                  </div>
+                  -->
                 </div>
 
                 <div class="row">
-                  <div class="form-group col-12">
+                  <div class="form-group col-md-6 col-12">
                     <label for="password" class="d-block">비밀번호</label>
                     <input id="password" type="password" class="form-control pwstrength" data-indicator="pwindicator"
                       name="password">
@@ -66,6 +77,10 @@
                       <div class="bar"></div>
                       <div class="label"></div>
                     </div>
+                  </div>
+                  <div class="form-group col-md-6 col-12">
+                    <label for="password2" class="d-block">비밀번호 확인</label>
+                    <input id="password2" type="password" class="form-control" name="password-confirm">
                   </div>
                 </div>
 
@@ -109,12 +124,9 @@
   <!-- JS Libraies -->
   <script src="assets/modules/jquery-pwstrength/jquery.pwstrength.min.js"></script>
   <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
-  <script src="assets/modules/prism/prism.js"></script>
-  <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Page Specific JS File -->
   <script src="assets/js/page/auth-register.js"></script>
-  <script src="assets/js/page/modules-sweetalert.js"></script>
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
@@ -146,40 +158,44 @@
     function getInfo() {
       const userName = document.getElementById('name').value;
       const userPwd1 = document.getElementById('password').value;
+      const userPwd2 = document.getElementById('password2').value;
       const userEmail = document.getElementById('email').value;
       const userPhone = document.getElementById('phone').value;
       const userAddress = document.getElementById('addr').value;
       const database = firebase.database();
 
-      firebase.auth().createUserWithEmailAndPassword(userEmail, userPwd1)
-        .then((userCredential) => {
-          // 회원가입 성공
-          const user = userCredential.user;
-          const userId = user.uid
-          console.log(userId)
+      if (userPwd1 != userPwd2)
+        alert('회원가입 실패 | Error Message : 비밀번호가 일치하지 않음')
 
-          database.ref('userInfo').update({
-            [userId]: {
-              name: userName,
-              id: userEmail,
-              password: userPwd1,
-              phone: userPhone,
-              address: userAddress
-            }
+      else {
+        firebase.auth().createUserWithEmailAndPassword(userEmail, userPwd1)
+          .then((userCredential) => {
+            // 회원가입 성공
+            const user = userCredential.user;
+            const userId = user.uid
+            console.log(userId)
+
+            database.ref('userInfo').update({
+              [userId]: {
+                name: userName,
+                id: userEmail,
+                password: userPwd1,
+                phone: userPhone,
+                address: userAddress
+              }
+            })
+            alert('회원가입 성공')
           })
-          swal("회원가입 성공!", {
-              icon: "success",
-          }).then(() => { location.href = './index.html'; })
-        })
-        .catch((error) => {
-          // 회원가입 실패
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          alert(`회원가입 실패 | Error Message : ${errorMessage}`)
-        });
+          .catch((error) => {
+            // 회원가입 실패
+            const errorCode = error.code;
+            const errorMessage = error.message;
+            alert(`회원가입 실패 | Error Message : ${errorMessage}`)
+          });
+      }
     }
   </script>
-  
+
 </body>
 
 </html>
