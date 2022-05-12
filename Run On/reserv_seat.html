@@ -170,15 +170,7 @@
         <section class="section">
           <h2 class="section-title">좌석 선택</h2>
           <p class="section-lead">&nbsp;</p>
-          <table class="table table-md text-center" id="seatTable">
-            <script>
-              // for (var i=0;i<3;i++){ //i,j 할당하는거 하기
-              //   document.write('<tr>');
-              //   for(var j=0;j<3;j++) document.write('<td id= x' + i + 'y' + j + '></td>');
-              //   document.write('</tr>');
-              // }
-            </script>
-          </table>
+          <table class="table table-md text-center" id="seatTable"></table>
         </section>
       </div>
     </div>
@@ -248,7 +240,7 @@
       var htmlString;
 
       query.once('value', (snapshot) => {
-        for (var i = 0; i <= snapshot.val().row; i++) { //?? 왜 tr이 여러번 먹는지
+        for (var i = 0; i <= snapshot.val().row; i++) {
           htmlString = '<tr>';
           for (var j = 0; j <= snapshot.val().col; j++)
             htmlString += '<td id= x' + i + 'y' + j + '></td>';
