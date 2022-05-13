@@ -139,47 +139,109 @@ function statYear() {
 /** adminMember.html */
 /** 회원 조회 */
 function viewMember() {
-  var no = 1;
+  // 1. 조회할 ID 가져오기
   var searchId = (new URL(document.location)).searchParams.get('userId');
 
-  if (searchId == null || searchId == '' || searchId == '#') { // 전체 조회
-    var query = firebase.database().ref("userInfo").orderByKey();
-    query.once("value").then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        // Table 추가 html 문자열 준비
-        var htmlString = '<tr>'
-          + '<td>' + (no++) + '</td>'
-          + '<td>' + childSnapshot.val().id + '</td>'
-          + '<td>' + childSnapshot.val().name + '</td>'
-          + '<td>' + childSnapshot.val().phone + '</td>';
+  // 2. 조회할 page 번호 가져오기
+  var curPage = (new URL(document.location)).searchParams.get('page'); // 현재 page 번호
+  if(curPage == null || curPage=='' || curPage=='#') curPage = 1; // 지정 없는 경우 첫 번째 page
 
-        // 블랙리스트에 존재하는지 체크
-        var isBlack = firebase.database().ref("blacklist").orderByKey().equalTo(childSnapshot.key);
-        isBlack.once("value").then(function (black) {
-          if (black.val() == null) { // 블랙리스트 X
-            var clickFunction = 'addBlacklistAdmin(this.parentNode.parentNode)';
-            htmlString += '<td><button class="btn btn-sm" onclick=' + clickFunction + '>등록</button></td></tr>';
-          } else { // 블랙리스트 존재
-            black.forEach(function (b) {
-              if (b.val().count < 3) { // 경고 횟수 3 미만
-                htmlString += '<td><div class="badge badge-success">' + b.val().count + '/3</div></td></tr>';
-              } else { // 경고 횟수 3
-                htmlString += '<td><div class="badge badge-danger">' + b.val().count + '/3</div></td></tr>';
-              }
-            })
-          }
+  // 전체 조회인 경우
+  if (searchId == null || searchId == '' || searchId == '#'){
+    // 2-1. page index 저장하기
+    var index = []; // 10개씩 page 만들기
+    var maxPage, userNum; // 페이지 수, 회원 수
 
-          // Table 추가
-          document.querySelector('#userList').innerHTML += htmlString;
+    var pageQuery = firebase.database().ref('userInfo').orderByKey();
+    pageQuery.once('value').then(function (pageList){
+      userNum = pageList.numChildren(); // 회원 수 체크
+      maxPage = Math.ceil(userNum/10); // 페이지 수 (전체 회원 수 / 10) -> 소수점 올림
+
+      // 10명 마다 index 저장 (key)
+      var no = 0;
+      pageList.forEach(function(page){
+        if(!(no%10)) // 10배수인 경우
+          index.push(page.key); // page 시작점 key 저장
+        no++;
+      })
+
+      // 2-2. page 버튼 표시하기 (5개)
+      var start = parseInt(curPage)-2;
+      var end = parseInt(curPage)+2; // 현재 페이지 앞 뒤로 2
+
+      if(curPage < 3 && maxPage > 5) end = 5;
+      if(curPage < 3) start = 1;
+      if(maxPage < 5) end = maxPage;
+      if(curPage > 5 && curPage+3 > maxPage){
+        start = maxPage-4;
+        end = maxPage;
+      }
+
+      var pageHtml = '';
+      var pageLink = './adminMember.html?page='
+
+      // 이전 페이지 (5페이지 이내 필요없음)
+      if(maxPage > 5 && curPage > 3)
+        pageHtml += '<li class="page-item">'
+          + '<a class="page-link" href="'+ pageLink + (curPage-1) +'" tabindex="-1"><i class="fas fa-chevron-left"></i></a></li>';
+
+      var i;
+      for(i=start; i<=end; i++){
+        pageHtml += '<li class="page-item"><a class="page-link" href="' + pageLink + i + '">'+ i;
+        if(i == curPage) pageHtml += '<span class="sr-only">(current)</span>'; // 현재 페이지
+        pageHtml += '</a></li>';
+      }
+
+      // 다음 페이지 (5페이지 이내 필요없음)
+      if(maxPage > 5 && end != maxPage)
+        pageHtml += '<li class="page-item">'
+          + '<a class="page-link" href="' + pageLink + (end+1) + '"><i class="fas fa-chevron-right"></i></a></li>'
+
+      document.querySelector('.pagination').innerHTML = pageHtml; // html 추가
+    }).then(function(){
+      // 3. 현재 page 첫 번째 key부터 10개 가져오기
+      var queryUser = firebase.database().ref('userInfo').orderByKey().startAt(index[curPage-1]);
+
+      if(curPage < maxPage) // 마지막 page 아닌 경우 => 조회 끝 지점 정해주기
+        queryUser = queryUser.endBefore(index[curPage]);
+
+      queryUser.once('value').then(function(userList){
+        var no = ((curPage-1)*10)+1;
+        
+        userList.forEach(function(user){
+          // Table 추가 html 문자열 준비
+          var htmlString = '<tr>'
+            + '<td>' + (no++) + '</td>'
+            + '<td>' + user.val().id + '</td>'
+            + '<td>' + user.val().name + '</td>'
+            + '<td>' + user.val().phone + '</td>';
+
+          // 블랙리스트에 존재하는지 체크
+          var queryIsBlack = firebase.database().ref('blacklist').orderByKey().equalTo(user.key);
+          queryIsBlack.once('value').then(function(black){
+            if(black.val()==null){ // 블랙리스트 X
+              var clickFunction = 'addBlacklistAdmin(this.parentNode.parentNode)';
+              htmlString += '<td><button class="btn btn-sm" onclick=' + clickFunction + '>등록</button></td></tr>';
+            } else { // 블랙리스트 등록되어 있음
+              black.forEach(function (b) {
+                if (b.val().count < 3) // 경고 횟수 3 미만
+                  htmlString += '<td><div class="badge badge-success">' + b.val().count + '/3</div></td></tr>';
+                else // 경고 횟수 3
+                  htmlString += '<td><div class="badge badge-danger">' + b.val().count + '/3</div></td></tr>';
+              })
+            }
+            // Table 추가
+            document.querySelector('#userList').innerHTML += htmlString;
+          })
         })
-      });
-    });
+      })
+    })
   } else { // 아이디 입력됨
     var query = firebase.database().ref("userInfo").orderByChild('id').equalTo(searchId);
     query.once("value").then(function (snapshot) {
       // 검색 결과 없음
       if(snapshot.val() == null){
-        document.querySelector('#userList').innerHTML += '<tr><td colspan=5>검색 결과 없음</td></tr>';
+        document.querySelector('#userList').innerHTML += '<tr><td colspan=5><h6>검색 결과 없음</h6>회원이 아닙니다.</td></tr>';
       }
 
       // 검색 결과 존재
@@ -258,101 +320,146 @@ function addBlacklistAdmin(userInfo, key) {
 
 /** 블랙리스트 조회 */
 function viewBlacklist() {
-  var no = 1;
+  // 1. 조회할 ID 가져오기
   var searchId = (new URL(document.location)).searchParams.get('userId');
+  
+  // 2. 조회할 page 번호 가져오기
+  var curPage = (new URL(document.location)).searchParams.get('page'); // 현재 page 번호
+  if(curPage == null || curPage=='' || curPage=='#') curPage = 1; // 지정 없는 경우 첫 번째 page
 
-  if (searchId == null || searchId == '' || searchId == '#') { // 전체 조회
-    var queryBlack = firebase.database().ref("blacklist").orderByKey();
-    queryBlack.once("value").then(function (snapshot) {
-      snapshot.forEach(function (childSnapshot) {
-        // userInfo에서 회원 아이디, 이름 정보 가져오기
-        var queryUser = firebase.database().ref("userInfo").orderByKey().equalTo(childSnapshot.key);
-        queryUser.once("value").then(function(userlist){
-          userlist.forEach(function(user){
-             // Table 추가 html 문자열 준비
-             var htmlString = '<tr>'
-             + '<td>' + (no++) + '</td>'
-             + '<td>' + user.val().id + '</td>'
-             + '<td>' + user.val().name + '</td>'
-             + '<td>' + childSnapshot.val().warnDate + '</td>';
+  // 전제 조회인 경우
+  if (searchId == null || searchId == '' || searchId == '#') {
+    // 2-1. page index 저장하기
+    var index = []; // 10개씩 page 만들기
+    var maxPage, userNum; // 페이지 수, 회원 수
 
-            // 경고 횟수 3회 미만 = 
-            if(childSnapshot.val().endDate == undefined){
-              htmlString += '<td>-</td>'
-            }else{
-              htmlString += '<td>' + childSnapshot.val().endDate + '</td>';
-            }
+    var pageQuery = firebase.database().ref('blacklist').orderByKey();
+    pageQuery.once('value').then(function (pageList){
+      userNum = pageList.numChildren(); // 회원 수 체크
+      maxPage = Math.ceil(userNum/10); // 페이지 수 (전체 회원 수 / 10) -> 소수점 올림
 
-            // Blacklist 경고 횟수 Check
-            if (childSnapshot.val().count < 3) { // 경고횟수 3회 미만
-              htmlString += '<td><div class="badge badge-success">' + childSnapshot.val().count + '/3</div></td>';
-            } else { // 경고횟수 3회
-              htmlString += '<td><div class="badge badge-danger">' + childSnapshot.val().count + '/3</div></td>';
-            }
+      // 10명 마다 index 저장 (key)
+      var no = 0;
+      pageList.forEach(function(page){
+        if(!(no%10)) // 10배수인 경우
+          index.push(page.key); // page 시작점 key 저장
+        no++;
+      })
 
-            // 관리 버튼 추가
-            var clickFunction = 'location.href="./edit_blacklist.html?key='+childSnapshot.key+'"';
-            htmlString += '<td><button class="btn btn-sm" onclick='+clickFunction+'>관리</button></td></tr>'
+      // 2-2. page 버튼 표시하기 (5개)
+      var start = parseInt(curPage)-2;
+      var end = parseInt(curPage)+2; // 현재 페이지 앞 뒤로 2
 
-            // Table 추가
-            document.querySelector('#blackList').innerHTML += htmlString;
-          })
-        });
-      });
-    });
-  } else { // 아이디 입력됨
-    var key;
-    var htmlString;
+      if(curPage < 3 && maxPage > 5) end = 5;
+      if(curPage < 3) start = 1;
+      if(maxPage < 5) end = maxPage;
+      if(curPage > 5 && curPage+3 > maxPage){
+        start = maxPage-4;
+        end = maxPage;
+      }
 
-    // 1. userInfo에서 입력된 아이디의 key값 가져오기
-    var queryCheckId = firebase.database().ref("userInfo").orderByChild('id').equalTo(searchId);
-    queryCheckId.once("value").then(function(userList){
-      if(userList.val() != null){ // 검색한 아이디 회원 존재
-        userList.forEach(function(user){
-          // 2. blacklist에 해당 key값 있는지 확인
-          var queryBlack = firebase.database().ref("blacklist").orderByKey().equalTo(user.key);
-          queryBlack.once("value").then(function(blackList){
-            if(blackList.val() != null){ // 검색한 아이디 블랙리스트에 존재 (검색 결과 존재)
-              blackList.forEach(function(black){
-                // Table 추가 html 문자열 준비
-                var htmlString = '<tr>'
+      var pageHtml = '';
+      var pageLink = './adminBlacklist.html?page='
+
+      // 이전 페이지 (5페이지 이내 필요없음)
+      if(maxPage > 5 && curPage > 3)
+        pageHtml += '<li class="page-item">'
+          + '<a class="page-link" href="'+ pageLink + (curPage-1) +'" tabindex="-1"><i class="fas fa-chevron-left"></i></a></li>';
+
+      var i;
+      for(i=start; i<=end; i++){
+        pageHtml += '<li class="page-item"><a class="page-link" href="' + pageLink + i + '">'+ i;
+        if(i == curPage) pageHtml += '<span class="sr-only">(current)</span>'; // 현재 페이지
+        pageHtml += '</a></li>';
+      }
+
+      // 다음 페이지 (5페이지 이내 필요없음)
+      if(maxPage > 5 && end != maxPage)
+        pageHtml += '<li class="page-item">'
+          + '<a class="page-link" href="' + pageLink + (end+1) + '"><i class="fas fa-chevron-right"></i></a></li>'
+
+      document.querySelector('.pagination').innerHTML = pageHtml; // html 추가
+    }).then(function(){
+      // 3. 현재 page 첫 번째 key부터 10개 가져오기
+      var queryBlack = firebase.database().ref('blacklist').orderByKey().startAt(index[curPage-1]);
+
+      if(curPage < maxPage) // 마지막 page 아닌 경우 => 조회 끝 지점 정해주기
+        queryBlack = queryBlack.endBefore(index[curPage]);
+
+      queryBlack.once('value').then(function(blackList){
+        var no = ((curPage-1)*10)+1;
+        var htmlString = ''; // table 새로운 행 추가 문자열
+
+        blackList.forEach(function(black){
+          // userInfo 테이블에서 해당 회원 아이디, 이름 가져오기
+          var queryUser = firebase.database().ref('userInfo').orderByKey().equalTo(black.key);
+          queryUser.once('value').then(function(userList){
+            userList.forEach(function(user){
+              htmlString = '<tr>'
                 + '<td>' + (no++) + '</td>'
                 + '<td>' + user.val().id + '</td>'
                 + '<td>' + user.val().name + '</td>'
                 + '<td>' + black.val().warnDate + '</td>';
 
-                // 경고 횟수 3회 미만 = 이용 정지 없음
-                if(black.val().endDate == undefined){
-                  htmlString += '<td>-</td>'
-                }else{
-                  htmlString += '<td>' + black.val().endDate + '</td>';
-                }
+              // blacklist 정보 출력
+              if(black.val().count < 3) // 경고 횟수 3회 미만인 경우 => 이용 정지 기간 없음, 횟수 초록색 표시
+                htmlString += '<td>-</td><td><div class="badge badge-success">' + black.val().count + '/3</div></td>';
+              else
+                htmlString += '<td>' + black.val().endDate + '</td><td><div class="badge badge-danger">' + black.val().count + '/3</div></td>';
 
-                // Blacklist 경고 횟수 Check
-                if (black.val().count < 3) { // 경고횟수 3회 미만
-                  htmlString += '<td><div class="badge badge-success">' + black.val().count + '/3</div></td>';
-                } else { // 경고횟수 3회
-                  htmlString += '<td><div class="badge badge-danger">' + black.val().count + '/3</div></td>';
-                }
+              // 관리 버튼 추가
+              var clickFunction = 'location.href="./edit_blacklist.html?key='+black.key+'"';
+              htmlString += '<td><button class="btn btn-sm" onclick='+clickFunction+'>관리</button></td></tr>'
+
+              // Table에 추가
+              document.querySelector('#blackList').innerHTML += htmlString;
+            })
+          })
+        })
+      })
+    })
+  }else{ // 아이디 입력된 경우
+    // 1. userInfo에서 입력된 아이디의 key값 가져오기
+    var idQuery = firebase.database().ref('userInfo').orderByChild('id').equalTo(searchId);
+    idQuery.once('value').then(function(userList){
+      if(userList.val() == null) { // 회원 존재 X
+        htmlString = '<tr><td colspan=7><h6>검색 결과 없음</h6>회원이 아닙니다.</td></tr>';
+        document.querySelector('#blackList').innerHTML += htmlString;
+      }else{ // 회원 존재
+        userList.forEach(function(user){
+          // 2. 검색한 아이디가 블랙리스트에 존재하는지 확인
+          var queryBlack = firebase.database().ref('blacklist').orderByKey().equalTo(user.key);
+          queryBlack.once('value').then(function(blackList){
+            if(blackList.val() == null){ // 블랙리스트 존재 X
+              htmlString = '<tr><td colspan=7><h6>검색 결과 없음</h6>블랙리스트가 아닙니다.</td></tr>';
+              document.querySelector('#blackList').innerHTML += htmlString;
+            } else { // 블랙리스트 존재
+              var no = 1;
+
+              blackList.forEach(function(black){
+                // Table 추가 html 문자열 준비
+                var htmlString = '<tr>'
+                  + '<td>' + (no++) + '</td>'
+                  + '<td>' + user.val().id + '</td>'
+                  + '<td>' + user.val().name + '</td>'
+                  + '<td>' + black.val().warnDate + '</td>';
+
+                 // blacklist 정보 출력
+                if(black.val().count < 3) // 경고 횟수 3회 미만인 경우 => 이용 정지 기간 없음, 횟수 초록색 표시
+                  htmlString += '<td>-</td><td><div class="badge badge-success">' + black.val().count + '/3</div></td>';
+                else
+                  htmlString += '<td>' + black.val().endDate + '</td><td><div class="badge badge-danger">' + black.val().count + '/3</div></td>';
 
                 // 관리 버튼 추가
                 var clickFunction = 'location.href="./edit_blacklist.html?key='+black.key+'"';
                 htmlString += '<td><button class="btn btn-sm" onclick='+clickFunction+'>관리</button></td></tr>'
 
-                // Table 추가
+                // Table에 추가
                 document.querySelector('#blackList').innerHTML += htmlString;
               })
-            }else{ // 블랙리스트 X
-              console.log("블랙리스트 아님");
-              htmlString = '<tr><td colspan=7>해당 아이디의 블랙리스트는 존재하지 않습니다.</td></tr>';
-              document.querySelector('#blackList').innerHTML += htmlString;
             }
           })
         })
-      } else { // 회원 X
-        console.log("회원이 아님");
-        htmlString = '<tr><td colspan=7>해당 아이디의 회원은 존재하지 않습니다.</td></tr>';
-        document.querySelector('#blackList').innerHTML += htmlString;
       }
     })
   }
