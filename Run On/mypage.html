@@ -148,40 +148,39 @@
                         <div class="profile-widget-item-value" id="name2"></div>
                       </div>
                     </div>
-                    <form method="post" class="needs-validation" novalidate="">
-                      <div class="card-body">
-                        <div class="row">
-                          <div class="form-group col-md-12 col-12" id="inputEmail">
-                            <label>이메일</label>
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-md-6 col-12">
-                            <label>비밀번호</label>
-                            <input type="password" class="form-control" value="123456">
-                          </div>
-                          <div class="form-group col-md-6 col-12">
-                            <label>비밀번호 확인</label>
-                            <input type="password" class="form-control">
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-12">
-                            <label>주소</label>
-                            <input type="text" class="form-control" value="서울시">
-                          </div>
-                        </div>
-                        <div class="row">
-                          <div class="form-group col-12">
-                            <label>전화번호</label>
-                            <input type="tel" class="form-control" value="010-1234-1234">
-                          </div>
+
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="form-group col-md-12 col-12" id="inputEmail">
+                          <label>이메일</label>
                         </div>
                       </div>
-                      <div class="card-footer text-right">
-                        <button class="btn btn-primary btn-block">수정 완료</button>
+                      <div class="row">
+                        <div class="form-group col-md-6 col-12">
+                          <label>비밀번호</label>
+                          <input type="password" class="form-control" value="123456" id="pwd1">
+                        </div>
+                        <div class="form-group col-md-6 col-12">
+                          <label>비밀번호 확인</label>
+                          <input type="password" class="form-control" id="pwd2">
+                        </div>
                       </div>
-                    </form>
+                      <div class="row">
+                        <div class="form-group col-12" id="inputAddress">
+                          <label>주소</label>
+                        </div>
+                      </div>
+                      <div class="row">
+                        <div class="form-group col-12" id="inputPhoneNum">
+                          <label>전화번호</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card-footer text-right">
+                      <button class="btn btn-primary btn-block" onclick="modifyInfo()">수정 완료</button>
+                      <button class="btn btn-primary btn-block" onclick="deleteInfo()">회원 탈퇴(색 변경)</button>
+                    </div>
+
                   </div>
                   <div class="profile-widget-description">
 
@@ -247,8 +246,8 @@
 
   <script>
     const uid = location.href.split('?')[1]; // data
-
     const dbRef = firebase.database().ref();
+
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
       console.log(snapshot.val());
       const nameArea = document.getElementById('name');
@@ -258,11 +257,63 @@
       nameArea.append(userName)
       nameArea2.append(userName)
 
-      document.querySelector('#inputEmail').innerHTML += '<input type="email" class="form-control" value="'+snapshot.val().id+'" readonly>'
-    
+      document.querySelector('#inputEmail').innerHTML += '<input type="email" class="form-control" value="' + snapshot.val().id + '" id="email" readonly>'
+      document.querySelector('#inputAddress').innerHTML += '<input type="text" class="form-control" value="' + snapshot.val().address + '" id="address">'
+      document.querySelector('#inputPhoneNum').innerHTML += '<input type="tel" class="form-control" value="' + snapshot.val().phone + '" id="phone">'
     }).catch((error) => {
       console.error(error);
     });
+  </script>
+
+  <script>
+    function modifyInfo() {
+      const user = firebase.auth().currentUser;
+
+      const pwd1 = document.getElementById('pwd1').value;
+      const pwd2 = document.getElementById('pwd2').value;
+      const address = document.getElementById('address').value;
+      const phone = document.getElementById('phone').value;
+      const id = document.getElementById('email').value;
+      const userName = document.getElementById('name2').value; //값을 가져오는 방법?
+
+      if (pwd1 != pwd2) {
+        alert("비밀번호를 확인해주세요!")
+      }
+
+      else {
+        var database = firebase.database();
+        firebase.database().ref('userInfo/' + uid).set({
+          address: address,
+          id: id,
+          name: userName
+        });
+
+      }
+      console.log(id)
+      console.log(pwd1)
+      console.log(pwd2)
+      console.log(address)
+      console.log(phone)
+      console.log(pwd1)
+      console.log(userName)
+    }
+
+    function deleteInfo() {
+      const user = firebase.auth().currentUser;
+      const uid = user.uid
+
+      firebase.database().ref('userInfo/' + uid).remove()
+      firebase.database().ref('blacklist/' + uid).remove()
+
+      user.delete().then(() => {
+        alert("회원 탈퇴가 완료되었습니다.")
+        location.href = './index.html?'
+
+      }).catch((error) => {
+        alert(error)
+      });
+
+    }
   </script>
 
 </body>
