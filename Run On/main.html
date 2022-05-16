@@ -269,7 +269,10 @@
   </script>
 
   <script>
-    const uid = location.href.split('?')[1]; // data
+    //const uid = location.href.split('?')[1]; 
+    const uid = window.localStorage.getItem('uid')
+
+    console.log(uid)
 
     const dbRef = firebase.database().ref();
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
