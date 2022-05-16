@@ -279,6 +279,7 @@
       console.log(snapshot.val());
       const nameArea = document.getElementById('name');
       const userName = snapshot.val().name
+      window.localStorage.setItem('userName', userName)
 
       nameArea.append(userName)
     }).catch((error) => {
