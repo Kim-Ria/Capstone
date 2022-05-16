@@ -168,6 +168,7 @@
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
+          <h2 id = 'head'></h2>
           <h2 class="section-title">좌석 선택</h2>
           <p class="section-lead">&nbsp;</p>
           <table class="table table-md text-center" id="seatTable"></table>
@@ -231,13 +232,19 @@
   </script>
 
   <script>
+      var num = sessionStorage.getItem("roomNum");
       function numberPad(n, width) {
-        n = n + '';
-        return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+        if (n < 10) {
+          n = n + '';
+          return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+        }
+        else return n;
       }
     function setTable(){ //테이블 명 지정해주는 함수
-      var query = firebase.database().ref("seat/열람실3/set");
+      var query = firebase.database().ref("seat/열람실"+num+"/set");
       var htmlString;
+
+      document.querySelector("#head").innerHTML += '열람실'+num;
 
       query.once('value', (snapshot) => {
         for (var i = 0; i <= snapshot.val().row; i++) {
@@ -250,7 +257,7 @@
       })
     }
     function setSeat() {
-      var query = firebase.database().ref("seat/열람실3/seat").orderByKey();
+      var query = firebase.database().ref("seat/열람실"+num+"/seat").orderByKey();
         query.on('value', (snapshot) => {
         snapshot.forEach(function (childSnapshot) { //for문
           //table id
@@ -280,7 +287,6 @@
     //usable 0 1 변경
     function editSeatUsable(n){
       //좌석 번호와 상태 가져오기
-      
       swal({
         title: numberPad(n,2) + "번 좌석",
         text: "예약하시겠습니까?",
@@ -290,7 +296,9 @@
       })
         .then((cancel) => {
           if (cancel) {
-            var query = firebase.database().ref("seat/열람실3/seat").child("seat"+n);
+            //좌석 값 주기
+            sessionStorage.setItem("seatNum",n);
+            var query = firebase.database().ref("seat/열람실"+num+"/seat").child("seat"+n);
             query.update({
               usable: 0
             });
