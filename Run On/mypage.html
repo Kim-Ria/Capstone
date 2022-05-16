@@ -245,7 +245,8 @@
   </script>
 
   <script>
-    const uid = location.href.split('?')[1]; // data
+    //const uid = location.href.split('?')[1]; // data
+    const uid = window.localStorage.getItem('uid')
     const dbRef = firebase.database().ref();
 
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
@@ -268,24 +269,40 @@
   <script>
     function modifyInfo() {
       const user = firebase.auth().currentUser;
+      const uid = user.uid
 
       const pwd1 = document.getElementById('pwd1').value;
       const pwd2 = document.getElementById('pwd2').value;
       const address = document.getElementById('address').value;
       const phone = document.getElementById('phone').value;
       const id = document.getElementById('email').value;
-      const userName = document.getElementById('name2').value; //값을 가져오는 방법?
+      const userName = window.localStorage.getItem('userName')
 
       if (pwd1 != pwd2) {
         alert("비밀번호를 확인해주세요!")
       }
 
       else {
-        var database = firebase.database();
         firebase.database().ref('userInfo/' + uid).set({
           address: address,
           id: id,
-          name: userName
+          name: userName,
+          password: pwd1,
+          phone: phone
+        }, (error) => {
+          if (error) {
+            console.log(error)
+          }
+          else {
+            //alert("수정 완료!")
+          }
+        });
+
+        const user = firebase.auth().currentUser;
+        user.updatePassword(pwd1).then(() => {
+          alert("수정 완료!")
+        }).catch((error) => {
+          alert(error)
         });
 
       }
