@@ -254,7 +254,6 @@
           if (childSnapshot.val().userKey == key){
             var s = childSnapshot.val().state;
             //state 0이용 전/1이용 중/2퇴실/3예약 취소
-            console.log(findColor(s))
             htmlString += '<div class="card card-'+findColor(s)+'">'
           + '<div class="card-header">'
           + '<h4 class="text-'+ findState(s) +'</h4>&nbsp;'

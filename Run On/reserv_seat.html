@@ -168,7 +168,7 @@
       <!-- Main Content -->
       <div class="main-content">
         <section class="section">
-          <h2 id = 'head'></h2>
+          <h2 id='head'></h2>
           <h2 class="section-title">좌석 선택</h2>
           <p class="section-lead">&nbsp;</p>
           <table class="table table-md text-center" id="seatTable"></table>
@@ -232,19 +232,21 @@
   </script>
 
   <script>
-      var num = sessionStorage.getItem("roomNum");
-      function numberPad(n, width) {
-        if (n < 10) {
-          n = n + '';
-          return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
-        }
-        else return n;
+    var num = sessionStorage.getItem("roomNum");
+    var seat = sessionStorage.getItem("seatNum");
+
+    function numberPad(n, width) {
+      if (n < 10) {
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
       }
-    function setTable(){ //테이블 명 지정해주는 함수
-      var query = firebase.database().ref("seat/열람실"+num+"/set");
+      else return n;
+    }
+    function setTable() { //테이블 명 지정해주는 함수
+      var query = firebase.database().ref("seat/열람실" + num + "/set");
       var htmlString;
 
-      document.querySelector("#head").innerHTML += '열람실'+num;
+      document.querySelector("#head").innerHTML += '열람실' + num;
 
       query.once('value', (snapshot) => {
         for (var i = 0; i <= snapshot.val().row; i++) {
@@ -253,42 +255,95 @@
             htmlString += '<td id= x' + i + 'y' + j + '></td>';
           document.querySelector("#seatTable").innerHTML += htmlString + '</tr>';
         }
-        
+
       })
     }
+
     function setSeat() {
-      var query = firebase.database().ref("seat/열람실"+num+"/seat").orderByKey();
-        query.on('value', (snapshot) => {
+      // seat : usable(0/1)
+      // reserveDate : state(0/1/2/3) - 0 사용전, 1 사용완료
+
+
+      // 1. 예약 내역 확인 (해당 좌석 예약 내역 있는지 조회)
+        // 1-1. 있으면?
+          // state 확인(0,1인 경우) 예약 못하게 equlTo (state)
+          // 시간 확인(해당 시간 이후 예약 못하게)
+        // 1-2. 없으면?
+          // val() == NULL
+          // usable 0이면 예약 못하게
+          // usable 1이면 예약 가능
+          var query = firebase.database().ref("reserveData");
+          query.on('value',(snapshot)=>{
+            var num = snapshot.val().room;
+            var seat = snapshot.val().seat;
+            var tableId;
+            var query2 = firebase.database().ref("seat/열람실"+num+"/seat"+seat);
+            query.on('val',(childSnapshot)=>{
+              tableId = "x" + childSnapshot.val().x + "y" + childSnapshot.val().y;
+            })
+            //이용전 이용전 취소 퇴실완료 
+            snapshot.orderByChild("usable").equalTo(0).on('value',(childSnapshot)=>{
+              document.querySelector("#" + tableId).innerHTML
+              = '<button type="button" class="btn btn-primary" onClick="editSeatUsable(' + childSnapshot.val().seatnum + ')">'
+              + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
+            })
+          })
+
+    }
+
+    function setSeat() {
+      var query = firebase.database().ref("seat/열람실" + num + "/seat").orderByKey();
+      query.on('value', (snapshot) => {
         snapshot.forEach(function (childSnapshot) { //for문
           //table id
           var tableId = "x" + childSnapshot.val().x + "y" + childSnapshot.val().y;
 
           // db의 좌석 x, y값
           //id = "x"+x좌표+"y"+y좌표;
+          //if(childSnapshot.val().date == )
           if (childSnapshot.val().usable == 1) { //살아있는거
             document.querySelector("#" + tableId).innerHTML
-              = '<button type="button" class="btn btn-primary" onClick="editSeatUsable('+childSnapshot.val().seatnum+')">'
-              + numberPad(childSnapshot.val().seatnum,2) + '</button>';
+              = '<button type="button" class="btn btn-primary" onClick="editSeatUsable(' + childSnapshot.val().seatnum + ')">'
+              + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
           }
           else { //죽은거
             document.querySelector("#" + tableId).innerHTML
               = '<button type="button" class="btn" disabled>'
-              + numberPad(childSnapshot.val().seatnum,2) + '</button>';
+              + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
           }
         })
       })
     }
+
+
 
     window.onload = function () {
       setTable();
       setSeat();
     }
 
+    function numberPad(n, width) {
+      if (n < 10) {
+        n = n + '';
+        return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+      }
+      else return n;
+    }
+
+    function today() {
+      var date = new Date();
+      var year = date.getFullYear();
+      var month = date.getMonth() + 1;
+      var day = date.getDate();
+      var d = year + '-' + numberPad(month, 2) + '-' + numberPad(day, 2)
+      return d
+    }
+
     //usable 0 1 변경
-    function editSeatUsable(n){
+    function editSeatUsable(n) {
       //좌석 번호와 상태 가져오기
       swal({
-        title: numberPad(n,2) + "번 좌석",
+        title: numberPad(n, 2) + "번 좌석",
         text: "예약하시겠습니까?",
         icon: "warning",
         buttons: true,
@@ -297,10 +352,18 @@
         .then((cancel) => {
           if (cancel) {
             //좌석 값 주기
-            sessionStorage.setItem("seatNum",n);
-            var query = firebase.database().ref("seat/열람실"+num+"/seat").child("seat"+n);
-            query.update({
-              usable: 0
+            sessionStorage.setItem("seatNum", n);
+            firebase.database().ref("reserveData/").push({
+                name : '신동준',
+                date: today(),
+                extension: 0,
+                room: num,
+                seat: n,
+                startTime: '3:00',
+                tagtime: '00:00',
+                state: 0,
+                usableTime: 180,
+                userKey: '0VRocdoqpHduwOecNyeautRHhwJ3' //유저키값 받아오기
             });
             swal("예약이 완료되었습니다.", {
               icon: "success",
@@ -310,7 +373,7 @@
 
     }
 
-    
+
   </script>
 
 </body>

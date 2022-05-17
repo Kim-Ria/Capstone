@@ -184,11 +184,13 @@
       <script src="assets/js/scripts.js"></script>
       <script src="assets/js/custom.js"></script>
       <script>
+        sessionStorage.setItem('key', 'sadaskdawi9ejqoie');
+        var key = sessionStorage.getItem('key');
         window.onload = function () {
-          setContent('sadaskdawi9ejqoie');
+          setContent();
         }
 
-        function setContent(key) {
+        function setContent() {
           var htmlString = '';
           var query = firebase.database().ref("reserveData/" + key);//예약키로 조회
 
@@ -209,11 +211,12 @@
               htmlString += '&nbsp;<button onclick="cancelRev()" class="btn btn-danger">취소</button>&nbsp;'
             else if (s.state == 1) {
               if (s.extension < 3) { //연장횟수도 바꿔줘야 함
-                htmlString += '&nbsp;<button onclick="extendRe('+key+')" class="btn btn-primary">연장</button>'
+                console.log('조건은 해당됨')
+                htmlString += '&nbsp;<button onclick="extendRe(' + s.extension+','+s.usableTime + ')" class="btn btn-primary">연장</button>'
               }
               else if (s.extension == 3)
-                htmlString += '&nbsp;<button onclick="extendRe()" class="btn" disabled>연장</button>'
-              htmlString += '&nbsp;<button onclick="checkOut()" class="btn btn-danger">퇴실</button>&nbsp;'
+                htmlString += '&nbsp;<button class="btn" disabled>연장</button>'
+              htmlString += '&nbsp;<button onclick="checkO()" class="btn btn-danger">퇴실</button>&nbsp;'
             }
 
 
@@ -233,24 +236,60 @@
           //usableTime:"3:00"
           var m = startTime.substr(3, 2);
           var h = startTime.substr(0, 2);
-          var mm = Number(m) + Number(usableTime.substr(3, 2));
-          var hh = Number(h) + Number(usableTime.substr(0, 2));
+          console.log(usableTime)
+          var mm = Number(m) + parseInt(Number(usableTime)/60);
+          var hh = Number(h) + Number(usableTime)%60;
           hh += parseInt(mm / 60);
           mm = mm % 60;
           return hh + ':' + mm;
         }
 
-
-        function extendRe() {
-          const query = firebase.database().ref("reserveData");//예약키로 조회
-          // var queryCount = query.child(childSnapshot.key).child("seat");
-          // queryCount.on('value', (room) => { roomCount = room.numChildren(); })
-          // queryCount.orderByChild("usable").equalTo(1).on('value', (seat) => { seatCount = seat.numChildren(); })
-          query.update({ //연장횟수 수정되도록
-            extension : extension+1
+        function extendRe(ext,use) {
+          swal({
+            title: "이용 연장",
+            text: "연장하시겠습니까?",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
           })
+            .then((cancel) => {
+              if (cancel) {
+                  const query = firebase.database().ref("reserveData/" + key);//예약키로 조회
+                  query.update({ //연장횟수 수정되도록
+                    extension: ext + 1,
+                    usableTime: use + 180
+                  })
+
+                swal("연장 처리 완료되었습니다.", {
+                  icon: "success",
+                }).then(() => { location.href = './main.html'; })
+              }
+            });
         }
 
+        // 퇴실 alert
+
+          // 퇴실 alert
+          function checkO() {
+            swal({
+              title: "이용 완료",
+              text: "정말 퇴실하시겠습니까?",
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            })
+              .then((cancel) => {
+                if (cancel) {
+                  var query = firebase.database().ref("reserveData/" + key);
+                  query.update({ //없애기
+                    state: 3
+                  });
+                  swal("퇴실 처리 완료되었습니다.", {
+                    icon: "success",
+                  }).then(() => { location.href = './main.html'; })
+                }
+              });
+          }
       </script>
 </body>
 

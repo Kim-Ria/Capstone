@@ -274,14 +274,7 @@
     }
     function chooseT(k) {
       //k는 시간
-      var query = firebase.database().ref("reserveData"); //예약 내역들 
-      //reserve->key->room/seat/usable=0 or 1
-      query.on('value', (snapshot) => {
-        snapshot.forEach(function (childSnapshot){
-          childSnapshot.val().room
-        })
-       })
-
+      sessionStorage.setItem('time',k);
     }
   </script>
 </body>
