@@ -27,6 +27,15 @@
     gtag('config', 'UA-94034622-3');
   </script>
   <!-- /END GA -->
+  <script>
+    window.onload = function(){
+      if(localStorage.getItem('uid')==null){
+        swal("로그인이 필요한 기능입니다.", {
+          icon: "warning",
+        }).then(() => { location.href = 'index.html'; })
+      }
+    }
+  </script>
 </head>
 
 <body class="layout-2">
@@ -215,10 +224,12 @@
   <script src="assets/modules/summernote/summernote-bs4.js"></script>
 
   <!-- Page Specific JS File -->
+  <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
+  <script src="assets/js/page/modules-sweetalert.js"></script>
 
   <!-- Firebase 연결하는 코드-->
   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
@@ -281,7 +292,6 @@
       if (pwd1 != pwd2) {
         alert("비밀번호를 확인해주세요!")
       }
-
       else {
         firebase.database().ref('userInfo/' + uid).set({
           address: address,
@@ -290,12 +300,8 @@
           password: pwd1,
           phone: phone
         }, (error) => {
-          if (error) {
-            alert(error)
-          }
-          else {
-            //alert("수정 완료!")
-          }
+          if (error) { alert(error) }
+          else { /*alert("수정 완료!")*/ }
         });
 
         const user = firebase.auth().currentUser;
@@ -304,15 +310,7 @@
         }).catch((error) => {
           alert(error)
         });
-
       }
-      console.log(id)
-      console.log(pwd1)
-      console.log(pwd2)
-      console.log(address)
-      console.log(phone)
-      console.log(pwd1)
-      console.log(userName)
     }
 
     function deleteInfo() {
@@ -324,12 +322,10 @@
 
       user.delete().then(() => {
         alert("회원 탈퇴가 완료되었습니다.")
-        location.href = './index.html?'
-
+        location.href = './index.html'
       }).catch((error) => {
         alert(error)
       });
-
     }
   </script>
 
