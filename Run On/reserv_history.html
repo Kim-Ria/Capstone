@@ -245,6 +245,12 @@
   <script src="assets/js/custom.js"></script>
   <script>
     window.onload = function () {
+      if(localStorage.getItem('uid')==null){
+        swal("로그인이 필요한 기능입니다.", {
+          icon: "warning",
+        }).then(() => { location.href = 'index.html'; })
+      }
+      
       setCard('0VRocdoqpHduwOecNyeautRHhwJ3');
     }
 
