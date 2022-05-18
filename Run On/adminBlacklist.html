@@ -148,9 +148,11 @@
   
    <!-- JS Libraies -->
    <script src="assets/modules/prism/prism.js"></script>
+   <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
    <!-- Page Specific JS File -->
    <script src="assets/js/page/bootstrap-modal.js"></script>
+   <script src="assets/js/page/modules-sweetalert.js"></script>
   
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
@@ -158,6 +160,13 @@
 
   <script>
     window.onload = function(){
+      id = localStorage.getItem('uid')
+      if(id==null || id!='9yTaNsMigxdATI4pBWUe1Fd9tXG3'){
+        swal("관리자 로그인이 필요한 기능입니다.", {
+          icon: "warning",
+        }).then(() => { location.href = 'index.html'; })
+      }
+
       viewBlacklist();
     }
   </script>
