@@ -139,5 +139,18 @@
     const app = initializeApp(firebaseConfig);
     const analytics = getAnalytics(app);
   </script>
+
+  <script>
+  window.onload = function () {
+    id = localStorage.getItem('uid')
+    if(id==null || id!='9yTaNsMigxdATI4pBWUe1Fd9tXG3'){
+      swal("관리자 로그인이 필요한 기능입니다.", {
+        icon: "warning",
+      }).then(() => { location.href = 'index.html'; })
+    }
+
+    // 열람실 보여주는 코드 추가
+  }
+  </script>
 </body>
 </html>
