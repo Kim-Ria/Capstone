@@ -161,18 +161,12 @@
 
           if (user.uid == '9yTaNsMigxdATI4pBWUe1Fd9tXG3'){
               location.href = './main_admin.html'
+              window.localStorage.setItem('uid', '9yTaNsMigxdATI4pBWUe1Fd9tXG3');
           }
-
           else {
-            location.href = './main.html?'+user.uid
+            location.href = './main.html'
             window.localStorage.setItem('uid', user.uid)
           }
-
-
-          //uid 변수 넘기기
-          console.log(user.uid)
-          
-          alert("로그인 성공")
         })
         .catch((error) => {
           var errorCode = error.code;
