@@ -25,6 +25,15 @@
     gtag('config', 'UA-94034622-3');
   </script>
   <!-- /END GA -->
+  <script>
+    window.onload = function(){
+      if(localStorage.getItem('uid')==null){
+        swal("로그인이 필요한 기능입니다.", {
+          icon: "warning",
+        }).then(() => { location.href = 'index.html'; })
+      }
+    }
+  </script>
 </head>
 
 <body class="layout-3">
@@ -114,7 +123,7 @@
               <div class="d-sm-none d-lg-inline-block" id="name"></div>
             </a>
             <div class="dropdown-menu dropdown-menu-right" id="mypageLink">
-              
+              <!-- 여기 이름 -->
             </div>
           </li>
         </ul>
@@ -239,10 +248,12 @@
 
   <!-- Page Specific JS File -->
   <script src="assets/js/server.js"></script>
+  <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
+  <script src="assets/js/page/modules-sweetalert.js"></script>
 
   <!-- Firebase 연결하는 코드-->
   <script src="https://www.gstatic.com/firebasejs/8.6.5/firebase-app.js"></script>
@@ -272,11 +283,8 @@
     //const uid = location.href.split('?')[1]; 
     const uid = window.localStorage.getItem('uid')
 
-    console.log(uid)
-
     const dbRef = firebase.database().ref();
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
-      console.log(snapshot.val());
       const nameArea = document.getElementById('name');
       const userName = snapshot.val().name
       window.localStorage.setItem('userName', userName)
@@ -286,9 +294,14 @@
       console.error(error);
     });
 
-    document.querySelector('#mypageLink').innerHTML += '<a href="mypage.html?'+uid+'" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
-     + '<a href="index.html" class="dropdown-item has-icon text-danger"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
+    document.querySelector('#mypageLink').innerHTML 
+      += '<a href="mypage.html?'+uid+'" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
+      + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
     
+    function logout(){
+      localStorage.removeItem('uid')
+      localStorage.removeItem('userName')
+    }
   </script>
 
 </body>
