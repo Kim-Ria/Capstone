@@ -114,7 +114,7 @@
                   <div class="card-body">
                     <h4>예약하기</h4>
                     <p>도서관 좌석 예약</p>
-                    <a href="./reserv_room.html" class="card-cta">예약하기 <i class="fas fa-chevron-right"></i></a>
+                    <a onclick = "reservUse()" class="card-cta">예약하기 <i class="fas fa-chevron-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -258,6 +258,35 @@
       localStorage.removeItem('uid')
       localStorage.removeItem('userName')
     }
+
+    function reservUse(){
+    var query = firebase.database().ref('reserveData/');
+    //reserveData/(key모름)/userKey => equltTo(uid)
+    //state가 0이거나 1일때 접근 못하도록 하기
+    var key = 0;
+    query.on('value',(snapshot) => {
+      snapshot.forEach(function (child){
+        if (child.val().userKey == uid && (child.val().state == 0 || child.val().state == 1))
+          key = 1;
+      })
+      if (key == 1){
+        swal({
+        title: "예약 내역 존재",
+        text: "예약 내역이 이미 존재합니다.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+        .then((cancel) => {
+          console.log('응 접근못해~')
+          if (cancel) {
+            location.href = './reserv_history.html';
+            return 0;
+        }});
+      }
+      else location.href="./reserv_room.html";
+    })
+  }
   </script>
 
 </body>
