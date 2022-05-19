@@ -134,10 +134,15 @@
           <li class="dropdown"><a href="#" data-toggle="dropdown"
               class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
-              <div class="d-sm-none d-lg-inline-block" id="name"></div>
+              <div class="d-sm-none d-lg-inline-block">신동준</div>
             </a>
-            <div class="dropdown-menu dropdown-menu-right" id="mypageLink">
-              <!-- 여기 이름 -->
+            <div class="dropdown-menu dropdown-menu-right">
+              <a href="mypage.html" class="dropdown-item has-icon">
+                <i class="far fa-user"></i> 마이페이지
+              </a>
+              <a href="index.html" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> 로그아웃
+              </a>
             </div>
           </li>
         </ul>
@@ -194,6 +199,7 @@
 
   <!-- JS Libraies -->
   <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
+  
 
   <!-- Page Specific JS File -->
   <script src="assets/js/page/modules-sweetalert.js"></script>
@@ -205,11 +211,10 @@
   <script>
     window.onload = function () {
       if(localStorage.getItem('uid')==null){
-        swal("로그인이 필요한 기능입니다.", {
-          icon: "warning",
-        }).then(() => { location.href = 'index.html'; })
-      }
-      
+            swal("로그인이 필요한 기능입니다.", {
+              icon: "warning",
+            }).then(() => { location.href = 'index.html'; })
+          }
       SetTime();
       setRoom();
     }
@@ -230,7 +235,7 @@
         for (var k = 0; k < 6; k++) {
           i++;
           if (i == 20) { htmlString += '</div><p></p>'; return; }
-          htmlString += '<button type="button" class="btn btn-primary" onClick="chooseTime(' + i + ')">'
+          htmlString += '<button type="button" class="btn btn-primary" onClick="chooseT(' + i + ')">'
             + numberPad(i, 2) + ':00</button>'
         }
         htmlString += '</div><p></p>';
@@ -248,17 +253,20 @@
           var htmlString = '<div class="card card-primary"><div class="card-header" onclick=';
           var roomCount, seatCount;
           var color;
+
           //전체 좌석
           var queryCount = query.child(childSnapshot.key).child("seat");
           queryCount.on('value', (room) => { roomCount = room.numChildren(); })
-          queryCount.orderByChild("usable").equalTo(1).on('value', (seat) => { seatCount = seat.numChildren(); })
+          seatCount = countRoom(parseInt(childSnapshot.key.substr(3,1)));
+          console.log(seatCount)
+          //queryCount.orderByChild("usable").equalTo(1).on('value', (seat) => { seatCount = seat.numChildren(); })
 
           if (seatCount / roomCount >= 0.7) color = 'success';
           else if (seatCount / roomCount >= 0.25) color = 'warning';
           else if (seatCount / roomCount == 0) color = 'dark';
           else color = 'danger';
           var n = childSnapshot.key.substr(3, 1);
-          console.log(n)
+
           htmlString += 'clickFunction(' + n + ')><h4 class="text-dark">' + childSnapshot.key + '</h4>/&nbsp;&nbsp;잔여 좌석&nbsp;'
             + '&nbsp;<span class="badge badge-' + color + '">'
             + seatCount + '/' + roomCount + '</span></div></div>';
@@ -273,30 +281,50 @@
       sessionStorage.setItem("roomNum", n);
       location.href = './reserv_seat.html';
     }
+
     function chooseT(k) {
-      //k는 시간
+      //k는 시간 왜 안받아지지?
       sessionStorage.setItem('time', k);
+      console.log(sessionStorage.getItem('time'))
+      //setRoom();
+    }
+
+    function countRoom(num) {
+      //예약 정보가 없는 경우 초기화 된 값으로 설정됨
+      var query = firebase.database().ref("seat/열람실" + num + "/seat").orderByKey();
+      var countSeat;
+      query.on('value', (snapshot) => {
+        countSeat = 0;
+
+        snapshot.forEach(function (childSnapshot) { //for문
+          // db의 좌석 x, y값
+          if (childSnapshot.val().usable == 1) { //살아있는거
+            //여기서 예약 내역 조회 후 좌석 사용 가능할 시 살리기
+            var reserveQuery = firebase.database().ref("reserveData");
+            var key = 0;
+
+            reserveQuery.on('value', (reserveshot) => {
+              reserveshot.forEach(function (childreserve) { //for문 도는 중
+                if (childreserve.val().seat == childSnapshot.val().seatnum
+                  && childreserve.val().room == num
+                  && (childreserve.val().state == 0 || childreserve.val().state == 1))
+                  //compareTime 함수 보류
+                  //&& compareTime(childreserve.val().startTime, time))
+                    key = 1;
+              })
+            })
+
+            if(key == 0) countSeat++;
+
+          }
+
+        })
+        console.log(countSeat)
+
+      })
+      return countSeat;
     }
   </script>
-
-  <script>
-    //헤더 부분 동적으로 가져오는 스크립트
-    const uid = window.localStorage.getItem('uid')
-
-    const nameArea = document.getElementById('name');
-    const userName = window.localStorage.getItem('userName')
-    nameArea.append(userName)
-
-    document.querySelector('#mypageLink').innerHTML
-      += '<a href="mypage.html?' + uid + '" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
-      + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
-
-    function logout() {
-      localStorage.removeItem('uid')
-      localStorage.removeItem('userName')
-    }
-  </script>
-
 </body>
 
 </html>

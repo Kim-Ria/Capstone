@@ -234,6 +234,7 @@
   <script>
     var num = sessionStorage.getItem("roomNum");
     var seat = sessionStorage.getItem("seatNum");
+    var time = sessionStorage.getItem("time");
 
     function numberPad(n, width) {
       if (n < 10) {
@@ -259,40 +260,16 @@
       })
     }
 
-    function setSeat() {
-      // seat : usable(0/1)
-      // reserveDate : state(0/1/2/3) - 0 사용전, 1 사용완료
-
-
-      // 1. 예약 내역 확인 (해당 좌석 예약 내역 있는지 조회)
-        // 1-1. 있으면?
-          // state 확인(0,1인 경우) 예약 못하게 equlTo (state)
-          // 시간 확인(해당 시간 이후 예약 못하게)
-        // 1-2. 없으면?
-          // val() == NULL
-          // usable 0이면 예약 못하게
-          // usable 1이면 예약 가능
-          var query = firebase.database().ref("reserveData");
-          query.on('value',(snapshot)=>{
-            var num = snapshot.val().room;
-            var seat = snapshot.val().seat;
-            var tableId;
-            var query2 = firebase.database().ref("seat/열람실"+num+"/seat"+seat);
-            query.on('val',(childSnapshot)=>{
-              tableId = "x" + childSnapshot.val().x + "y" + childSnapshot.val().y;
-            })
-            //이용전 이용전 취소 퇴실완료 
-            snapshot.orderByChild("usable").equalTo(0).on('value',(childSnapshot)=>{
-              document.querySelector("#" + tableId).innerHTML
-              = '<button type="button" class="btn btn-primary" onClick="editSeatUsable(' + childSnapshot.val().seatnum + ')">'
-              + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
-            })
-          })
-
+    function compareTime(t1,t2){//예약시간 , 세션시간
+      if (Number(t1.substr(0,2))<Number(t2.substr(0,2))) return 1;
+      else if ((Number(t1.substr(0,2)) == Number(t2.substr(0,2))) && (Number(t1.substr(2,4))<Number(t2.substr(2,4)))) return 1;
+      else return 1;
     }
 
     function setSeat() {
+      //예약 정보가 없는 경우 초기화 된 값으로 설정됨
       var query = firebase.database().ref("seat/열람실" + num + "/seat").orderByKey();
+
       query.on('value', (snapshot) => {
         snapshot.forEach(function (childSnapshot) { //for문
           //table id
@@ -300,11 +277,33 @@
 
           // db의 좌석 x, y값
           //id = "x"+x좌표+"y"+y좌표;
-          //if(childSnapshot.val().date == )
           if (childSnapshot.val().usable == 1) { //살아있는거
-            document.querySelector("#" + tableId).innerHTML
+            //여기서 예약 내역 조회 후 좌석 사용 가능할 시 살리기
+            var key;
+            var reserveQuery = firebase.database().ref("reserveData");
+            reserveQuery.on('value', (reserveshot) => {
+              key = 0;
+              reserveshot.forEach(function (childreserve) { //for문 도는 중
+                //열람실 번호와 좌석 번호가 일치하며 사용 불가한 좌석일 때
+                if (childreserve.val().seat == childSnapshot.val().seatnum
+                  && childreserve.val().room == num
+                  && (childreserve.val().state == 0 || childreserve.val().state == 1)
+                  //compareTime 함수 보류
+                  && compareTime(childreserve.val().startTime, time) ) { 
+                    //죽은거
+                  document.querySelector("#" + tableId).innerHTML
+                    = '<button type="button" class="btn" disabled>'
+                    + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
+                    key = 1;
+                }
+              })
+              if (key == 0){
+                document.querySelector("#" + tableId).innerHTML
               = '<button type="button" class="btn btn-primary" onClick="editSeatUsable(' + childSnapshot.val().seatnum + ')">'
               + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
+              }
+            })
+
           }
           else { //죽은거
             document.querySelector("#" + tableId).innerHTML
@@ -313,13 +312,18 @@
           }
         })
       })
+
     }
 
-
-
     window.onload = function () {
+      if(localStorage.getItem('uid')==null){
+            swal("로그인이 필요한 기능입니다.", {
+              icon: "warning",
+            }).then(() => { location.href = 'index.html'; })
+          }
       setTable();
       setSeat();
+      console.log(time)
     }
 
     function numberPad(n, width) {
@@ -354,16 +358,16 @@
             //좌석 값 주기
             sessionStorage.setItem("seatNum", n);
             firebase.database().ref("reserveData/").push({
-                name : '신동준',
-                date: today(),
-                extension: 0,
-                room: num,
-                seat: n,
-                startTime: '3:00',
-                tagtime: '00:00',
-                state: 0,
-                usableTime: 180,
-                userKey: '0VRocdoqpHduwOecNyeautRHhwJ3' //유저키값 받아오기
+              name: window.localStorage.getItem('userName'),
+              date: today(),
+              extension: 0,
+              room: num,
+              seat: n,
+              startTime: numberPad(time,2)+':00',
+              tagtime: '00:00',
+              state: 0,
+              usableTime: 180,
+              userKey: window.localStorage.getItem('uid')
             });
             swal("예약이 완료되었습니다.", {
               icon: "success",

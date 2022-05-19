@@ -132,10 +132,15 @@
           <li class="dropdown"><a href="#" data-toggle="dropdown"
               class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
-              <div class="d-sm-none d-lg-inline-block" id="name"></div>
+              <div class="d-sm-none d-lg-inline-block">신동준</div>
             </a>
-            <div class="dropdown-menu dropdown-menu-right" id="mypageLink">
-              <!-- 여기 이름 -->
+            <div class="dropdown-menu dropdown-menu-right">
+              <a href="mypage.html" class="dropdown-item has-icon">
+                <i class="far fa-user"></i> 마이페이지
+              </a>
+              <a href="index.html" class="dropdown-item has-icon text-danger">
+                <i class="fas fa-sign-out-alt"></i> 로그아웃
+              </a>
             </div>
           </li>
         </ul>
@@ -187,7 +192,6 @@
               icon: "warning",
             }).then(() => { location.href = 'index.html'; })
           }
-
           setContent();
         }
 
@@ -213,7 +217,7 @@
             else if (s.state == 1) {
               if (s.extension < 3) { //연장횟수도 바꿔줘야 함
                 console.log('조건은 해당됨')
-                htmlString += '&nbsp;<button onclick="extendRe(' + s.extension + ',' + s.usableTime + ')" class="btn btn-primary">연장</button>'
+                htmlString += '&nbsp;<button onclick="extendRe(' + s.extension+','+s.usableTime + ')" class="btn btn-primary">연장</button>'
               }
               else if (s.extension == 3)
                 htmlString += '&nbsp;<button class="btn" disabled>연장</button>'
@@ -238,14 +242,14 @@
           var m = startTime.substr(3, 2);
           var h = startTime.substr(0, 2);
           console.log(usableTime)
-          var mm = Number(m) + parseInt(Number(usableTime) / 60);
-          var hh = Number(h) + Number(usableTime) % 60;
+          var mm = Number(m) + parseInt(Number(usableTime)/60);
+          var hh = Number(h) + Number(usableTime)%60;
           hh += parseInt(mm / 60);
           mm = mm % 60;
           return hh + ':' + mm;
         }
 
-        function extendRe(ext, use) {
+        function extendRe(ext,use) {
           swal({
             title: "이용 연장",
             text: "연장하시겠습니까?",
@@ -255,11 +259,11 @@
           })
             .then((cancel) => {
               if (cancel) {
-                const query = firebase.database().ref("reserveData/" + key);//예약키로 조회
-                query.update({ //연장횟수 수정되도록
-                  extension: ext + 1,
-                  usableTime: use + 180
-                })
+                  const query = firebase.database().ref("reserveData/" + key);//예약키로 조회
+                  query.update({ //연장횟수 수정되도록
+                    extension: ext + 1,
+                    usableTime: use + 180
+                  })
 
                 swal("연장 처리 완료되었습니다.", {
                   icon: "success",
@@ -270,45 +274,27 @@
 
         // 퇴실 alert
 
-        // 퇴실 alert
-        function checkO() {
-          swal({
-            title: "이용 완료",
-            text: "정말 퇴실하시겠습니까?",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-          })
-            .then((cancel) => {
-              if (cancel) {
-                var query = firebase.database().ref("reserveData/" + key);
-                query.update({ //없애기
-                  state: 3
-                });
-                swal("퇴실 처리 완료되었습니다.", {
-                  icon: "success",
-                }).then(() => { location.href = './main.html'; })
-              }
-            });
-        }
-      </script>
-
-      <script>
-        //헤더 부분 동적으로 가져오는 스크립트
-        const uid = window.localStorage.getItem('uid')
-
-        const nameArea = document.getElementById('name');
-        const userName = window.localStorage.getItem('userName')
-        nameArea.append(userName)
-
-        document.querySelector('#mypageLink').innerHTML
-          += '<a href="mypage.html?' + uid + '" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
-          + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
-
-        function logout() {
-          localStorage.removeItem('uid')
-          localStorage.removeItem('userName')
-        }
+          // 퇴실 alert
+          function checkO() {
+            swal({
+              title: "이용 완료",
+              text: "정말 퇴실하시겠습니까?",
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            })
+              .then((cancel) => {
+                if (cancel) {
+                  var query = firebase.database().ref("reserveData/" + key);
+                  query.update({ //없애기
+                    state: 3
+                  });
+                  swal("퇴실 처리 완료되었습니다.", {
+                    icon: "success",
+                  }).then(() => { location.href = './main.html'; })
+                }
+              });
+          }
       </script>
 </body>
 
