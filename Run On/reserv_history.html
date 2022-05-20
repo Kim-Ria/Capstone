@@ -181,25 +181,17 @@
                       </div>
                     </div>
                   </div>
+                  <!-- 예약 내역 추가될 부분 -->
                   <div class="col-12" id="cardBody"></div>
-                  <div class="card-footer text-right">
+
+                  <div class="card-footer text-center">
                     <nav class="d-inline-block">
                       <ul class="pagination mb-0">
-                        <li class="page-item disabled">
-                          <a class="page-link" href="#" tabindex="-1"><i class="fas fa-chevron-left"></i></a>
-                        </li>
-                        <li class="page-item active"><a class="page-link" href="#">1 <span
-                              class="sr-only">(current)</span></a></li>
-                        <li class="page-item">
-                          <a class="page-link" href="#">2</a>
-                        </li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                          <a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a>
-                        </li>
+                        <!-- 페이징 추가될 부분 -->
                       </ul>
                     </nav>
                   </div>
+
                 </div>
               </div>
             </div>
@@ -238,48 +230,23 @@
   <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
 
   <!-- Page Specific JS File -->
-  <script src="assets/js/page/forms-advanced-forms.js"></script>
+  <script src="assets/js/page/bootstrap-modal.js"></script>
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
   <script src="assets/js/custom.js"></script>
   <script>
+    var uid = localStorage.getItem('uid');
 
     window.onload = function () {
-      if (localStorage.getItem('uid') == null) {
+      if (uid == null) {
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
       }
-      setCard(localStorage.getItem('uid'));
+      viewReserve();
     }
 
-    function setCard(key) {
-      var htmlString = '';
-      var query = firebase.database().ref("reserveData");
-      query.on('value', (snapshot) => {
-        snapshot.forEach(function (childSnapshot) {
-          if (childSnapshot.val().userKey == key) {
-            var s = childSnapshot.val().state;
-
-            var det = "goDetail('"+childSnapshot.key+"')"
-
-            //state 0이용 전/1이용 중/2퇴실/3예약 취소
-            //console.log(childSnapshot.key) //예약키
-            htmlString += '<div class="card card-' + findColor(s) + '">'
-              + '<div class="card-header">'
-              + '<h4 class="text-' + findState(s) + '</h4>&nbsp;'
-              + childSnapshot.val().date + ' | ' + childSnapshot.val().startTime + '~'+ childSnapshot.val().endTime
-              + '</div><div class="card-body text-dark">'
-              + '도서관 제' + childSnapshot.val().room + '열람실 ' + childSnapshot.val().seat + '번 &nbsp;&nbsp;&nbsp;'
-              + '<a onclick = '+det+' clas="text-muted">예약 상세&nbsp;＞</a>'
-              //+ '<a href="./reserv_detail.html" clas="text-muted">예약 상세&nbsp;＞</a>'
-              + '</div></div>';
-          }
-        })
-        document.querySelector("#cardBody").innerHTML += htmlString;
-      })
-    }
     function goDetail(key) {
       sessionStorage.setItem('reserveKey', key)
       console.log('눌리긴 함')
@@ -296,11 +263,96 @@
       else if (n == 2) return 'dark">이용 완료';
       else return 'muted">예약 취소';
     }
-  </script>
 
-  <script>
-    //const uid = location.href.split('?')[1]; 
-    const uid = window.localStorage.getItem('uid')
+    function viewReserve() {
+      const uid = window.localStorage.getItem('uid')
+      var htmlString = '';
+
+      // 2. 조회할 page 번호 가져오기
+      //var curPage = get('page'); // 현재 page 번호
+      var curPage = (new URL(document.location)).searchParams.get('page');
+      console.log(curPage)
+      if (curPage == null || curPage == '' || curPage == '#') curPage = 1; // 지정 없는 경우 첫 번째 page
+
+
+      var query = firebase.database().ref('reserveData').orderByChild('userKey').equalTo(uid);
+      var index = [];
+      var maxPage, resNum;
+      query.once('value').then(function (pageList) {
+        resNum = pageList.numChildren();
+        maxPage = Math.ceil(resNum / 10);
+
+        var no = 0;
+        pageList.forEach(function (page) {
+          if (!(no % 10)) // 10배수인 경우
+            index.push(page.key); // page 시작점 key 저장
+          no++;
+        })
+
+        // 2-2. page 버튼 표시하기 (5개)
+        var start = parseInt(curPage) - 2;
+        var end = parseInt(curPage) + 2; // 현재 페이지 앞 뒤로 2
+
+        if (curPage < 3 && maxPage > 5) end = 5;
+        if (curPage < 3) start = 1;
+        if (maxPage < 5) end = maxPage;
+        if (curPage > 5 && curPage + 3 > maxPage) {
+          start = maxPage - 4;
+          end = maxPage;
+        }
+
+        var pageHtml = '';
+        var pageLink = './reserv_history.html?page=';
+        // 이전 페이지 (5페이지 이내 필요없음)
+        if (maxPage > 5 && curPage > 3)
+          pageHtml += '<li class="page-item">'
+            + '<a class="page-link" href="' + pageLink + (curPage - 1) + '" tabindex="-1"><i class="fas fa-chevron-left"></i></a></li>';
+
+        var i;
+        for (i = start; i <= end; i++) {
+          pageHtml += '<li class="page-item"><a class="page-link" href="' + pageLink + i + '">' + i;
+          if (i == curPage) pageHtml += '<span class="sr-only">(current)</span>'; // 현재 페이지
+          pageHtml += '</a></li>';
+        }
+
+        // 다음 페이지 (5페이지 이내 필요없음)
+        if (maxPage > 5 && end != maxPage)
+          pageHtml += '<li class="page-item">'
+            + '<a class="page-link" href="' + pageLink + (end + 1) + '"><i class="fas fa-chevron-right"></i></a></li>'
+
+
+        document.querySelector('.pagination').innerHTML = pageHtml; // html 추가
+      }).then(function () {
+        // 3. 현재 page 첫 번째 key부터 10개 가져오기
+        var queryRes = firebase.database().ref('reserveData').orderByKey().startAt(index[curPage - 1])
+        if (curPage < maxPage) // 마지막 page 아닌 경우 => 조회 끝 지점 정해주기
+          queryRes = queryRes.endBefore(index[curPage]);
+
+        queryRes.once('value').then(function (resList) {
+          var no = ((curPage - 1) * 10) + 1;
+
+          var htmlString = '';
+
+          resList.forEach(function (childSnapshot) {
+            var s = childSnapshot.val().state;
+
+            var det = "goDetail('" + childSnapshot.key + "')"
+
+            //state 0이용 전/1이용 중/2퇴실/3예약 취소
+            //console.log(childSnapshot.key) //예약키
+            htmlString += '<div class="card card-' + findColor(s) + '">'
+              + '<div class="card-header">'
+              + '<h4 class="text-' + findState(s) + '</h4>&nbsp;'
+              + childSnapshot.val().date + ' | ' + childSnapshot.val().startTime + '~' + childSnapshot.val().endTime
+              + '</div><div class="card-body text-dark">'
+              + '도서관 제' + childSnapshot.val().room + '열람실 ' + childSnapshot.val().seat + '번 &nbsp;&nbsp;&nbsp;'
+              + '<a onclick = ' + det + ' clas="text-muted">예약 상세&nbsp;＞</a>'
+              + '</div></div>';
+          })
+          document.querySelector("#cardBody").innerHTML += htmlString;
+        })
+      })
+    }
 
     const dbRef = firebase.database().ref();
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
