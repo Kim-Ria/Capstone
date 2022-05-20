@@ -181,6 +181,7 @@
       <script>
         var resKey = sessionStorage.getItem('reserveKey')
         var key = sessionStorage.getItem('key');
+        var left;
         window.onload = function () {
           if (localStorage.getItem('uid') == null) {
             swal("로그인이 필요한 기능입니다.", {
@@ -208,14 +209,14 @@
               + '</div><div class="card-footer text-center">'
               + '<button onclick="window.history.back()" class="btn btn-secondary">확인</button>'
             if (s.state == 0)
-              htmlString += '&nbsp;<button onclick="cancelRev()" class="btn btn-danger">취소</button>&nbsp;'
+              htmlString += '&nbsp;<button onclick="cancelRev(' + s.room + ')" class="btn btn-danger">취소</button>&nbsp;'
             else if (s.state == 1) {
               if (s.extension < 3 && s.endTime != '24:00') { //연장횟수도 바꿔줘야 함
                 htmlString += '&nbsp;<button onclick="extendRe(' + s.extension + ',' + s.endTime + ')" class="btn btn-primary">연장</button>'
               }
               else if (s.extension == 3 || s.endTime == '24:00')
                 htmlString += '&nbsp;<button class="btn" disabled>연장</button>'
-              htmlString += '&nbsp;<button onclick="checkO()" class="btn btn-danger">퇴실</button>&nbsp;'
+              htmlString += '&nbsp;<button onclick="checkO(' + s.room + ')" class="btn btn-danger">퇴실</button>&nbsp;'
             }
 
 
@@ -244,7 +245,7 @@
           if (h + 2 >= 24) {//밤12시일 경우 연장 X 막기, 시간 24:00지정
             return '24:00';
           }
-          else return numberPad(h + 2, 2) + ':' + numberPad(m,2);
+          else return numberPad(h + 2, 2) + ':' + numberPad(m, 2);
         }
 
         function extendRe(ext, end) {
@@ -272,7 +273,11 @@
         }
 
         // 퇴실 alert
-        function checkO() {
+        function checkO(num) {
+          var query = firebase.database().ref('seat/열람실' + num + '/set');
+          query.once('value', function (qq) {
+            left = qq.val().left
+          })
           swal({
             title: "이용 완료",
             text: "정말 퇴실하시겠습니까?",
@@ -281,6 +286,10 @@
             dangerMode: true,
           })
             .then((cancel) => {
+              var query = firebase.database().ref('seat/열람실' + num + '/set')
+              query.update({
+                left: left + 1
+              })
               if (cancel) {
                 var query = firebase.database().ref("reserveData/" + resKey);
                 query.update({ //없애기
@@ -294,7 +303,11 @@
         }
 
         //취소
-        function cancelRev() {
+        function cancelRev(num) {
+          var query = firebase.database().ref('seat/열람실' + num + '/set');
+          query.once('value', function (qq) {
+            left = qq.val().left
+          })
           swal({
             title: "예약 취소",
             text: "예약을 취소하시겠습니까?",
@@ -303,6 +316,10 @@
             dangerMode: true,
           })
             .then((cancel) => {
+              var query = firebase.database().ref('seat/열람실' + num + '/set')
+              query.update({
+                left: left + 1
+              })
               if (cancel) {
                 var query = firebase.database().ref("reserveData/" + resKey);
                 query.update({ //없애기
