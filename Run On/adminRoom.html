@@ -55,11 +55,20 @@
       <!-- 헤더 네비게이션 -->
       <div class="navbar-bg"></div>
       <nav class="navbar navbar-expand-lg main-navbar">
-        <a href="main_admin.html" class="navbar-brand sidebar-gone-hide">RUN ON</a>
-        <a href="index.html" class="text-white"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+        <a href="main_admin.html" class="navbar-brand">RUN ON</a>
+        <form class="form-inline ml-auto">
+          <ul class="navbar-nav">
+            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"></a></li>
+          </ul>
+        </form>
+        <ul class="navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="index.html" class="text-white" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+          </li>
+        </ul>
       </nav>
 
-      <nav class="navbar navbar-secondary navbar-expand-lg shadow-none bg-white">
+      <nav class="navbar navbar-secondary navbar-expand">
         <div class="container">
           <ul class="navbar-nav">
             <li class="nav-item">
@@ -119,30 +128,29 @@
     }
 
     function goToSeat(n) {
-        sessionStorage.setItem("roomNum", n);
-        location.href = './adminseat.html';
-      }
+      sessionStorage.setItem("roomNum", n);
+      location.href = './adminseat.html';
+    }
 
-      // 열람실 보여주는 코드 추가
-      function setRoom() {
-        // 1. 열람실 출력
-        var query = firebase.database().ref("seat");
-        query.once('value', function (roomList) {
-          roomList.forEach(function (room) {
-            console.log("열람실 번호 : " + room.key.substr(3, 1));
+    function setRoom() {
+      // 1. 열람실 출력
+      var query = firebase.database().ref("seat");
+      query.once('value', function (roomList) {
+        roomList.forEach(function (room) {
+          console.log("열람실 번호 : " + room.key.substr(3, 1));
 
 
-            // 3. 관리자가 사용 막은 좌석 수 체크
-            queryCnt = firebase.database().ref('seat').child(room.key).child('seat').orderByChild('usable').equalTo(0);
-            queryCnt.once('value', async function (usable) {
+          // 3. 관리자가 사용 막은 좌석 수 체크
+          queryCnt = firebase.database().ref('seat').child(room.key).child('seat').orderByChild('usable').equalTo(0);
+          queryCnt.once('value', async function (usable) {
 
-              document.querySelector('#roomList').innerHTML
-                += '<div class="card card-primary"><div class="card-header" onclick="goToSeat(' + parseInt(room.key.substr(3, 1)) + ')">'
-                + '<h4 class="text-dark">' + room.key + '</span></div></div>';
-            });
+            document.querySelector('#roomList').innerHTML
+              += '<div class="card card-primary"><div class="card-header" onclick="goToSeat(' + parseInt(room.key.substr(3, 1)) + ')">'
+              + '<h4 class="text-dark">' + room.key + '</span></div></div>';
           });
         });
-      }
+      });
+    }
   </script>
 </body>
 
