@@ -29,10 +29,16 @@
   <!-- /END GA -->
   <script>
     window.onload = function(){
-      if(localStorage.getItem('uid')==null){
+      var uid = localStorage.getItem('uid');
+
+      if(uid==null){
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
+      }else{
+        document.querySelector('#mypageLink').innerHTML 
+          += '<a href="mypage.html" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
+          + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
       }
     }
   </script>
@@ -43,18 +49,11 @@
 
     <!-- 헤더 네비게이션 -->
     <div class="navbar-bg"></div>
-    <nav class="navbar navbar-expand-lg main-navbar">
-      <a href="main.html" class="navbar-brand sidebar-gone-hide">RUN ON</a>
-      <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
-      <div class="nav-collapse">
-        <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
-          <i class="fas fa-ellipsis-v"></i>
-        </a>
-      </div>
+    <nav class="navbar navbar-expand main-navbar">
+      <a href="main.html" class="navbar-brand">RUN ON</a>
       <form class="form-inline ml-auto">
         <ul class="navbar-nav">
-          <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i class="fas fa-search"></i></a>
-          </li>
+          <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"></a></li>
         </ul>
       </form>
       <ul class="navbar-nav navbar-right">
@@ -76,67 +75,26 @@
                   <div class="time text-primary">2 Min Ago</div>
                 </div>
               </a>
-              <a href="#" class="dropdown-item">
-                <div class="dropdown-item-icon bg-info text-white">
-                  <i class="far fa-user"></i>
-                </div>
-                <div class="dropdown-item-desc">
-                  <b>You</b> and <b>Dedik Sugiharto</b> are now friends
-                  <div class="time">10 Hours Ago</div>
-                </div>
-              </a>
-              <a href="#" class="dropdown-item">
-                <div class="dropdown-item-icon bg-success text-white">
-                  <i class="fas fa-check"></i>
-                </div>
-                <div class="dropdown-item-desc">
-                  <b>Kusnaedi</b> has moved task <b>Fix bug header</b> to <b>Done</b>
-                  <div class="time">12 Hours Ago</div>
-                </div>
-              </a>
-              <a href="#" class="dropdown-item">
-                <div class="dropdown-item-icon bg-danger text-white">
-                  <i class="fas fa-exclamation-triangle"></i>
-                </div>
-                <div class="dropdown-item-desc">
-                  Low disk space. Let's clean it!
-                  <div class="time">17 Hours Ago</div>
-                </div>
-              </a>
-              <a href="#" class="dropdown-item">
-                <div class="dropdown-item-icon bg-info text-white">
-                  <i class="fas fa-bell"></i>
-                </div>
-                <div class="dropdown-item-desc">
-                  Welcome to Stisla template!
-                  <div class="time">Yesterday</div>
-                </div>
-              </a>
             </div>
             <div class="dropdown-footer text-center">
               <a href="#">View All <i class="fas fa-chevron-right"></i></a>
             </div>
           </div>
         </li>
-        <li class="dropdown"><a href="#" data-toggle="dropdown"
+        <li class="dropdown">
+          <a href="#" data-toggle="dropdown"
             class="nav-link dropdown-toggle nav-link-lg nav-link-user">
             <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
-            <div class="d-sm-none d-lg-inline-block" id="name"></div>
+            <div class="d-inline-block" id="name"></div>
           </a>
-          <div class="dropdown-menu dropdown-menu-right">
-            <a href="mypage.html" class="dropdown-item has-icon">
-              <i class="far fa-user"></i> 마이페이지
-            </a>
-            <a href="index.html" class="dropdown-item has-icon text-danger">
-              <i class="fas fa-sign-out-alt"></i> 로그아웃
-            </a>
+          <div class="dropdown-menu dropdown-menu-right" id="mypageLink">
+            <!-- 여기 이름 -->
           </div>
         </li>
       </ul>
     </nav>
 
     <!-- 네비게이션 여기까지 -->
-
 
     <div class="main-wrapper container">
       <!-- Main Content -->
@@ -261,7 +219,6 @@
     const dbRef = firebase.database().ref();
 
     dbRef.child("userInfo").child(uid).get().then((snapshot) => {
-      console.log(snapshot.val());
       const nameArea = document.getElementById('name');
       const nameArea2 = document.getElementById('name2');
       const userName = snapshot.val().name
@@ -290,7 +247,7 @@
       const userName = window.localStorage.getItem('userName')
 
       if (pwd1 != pwd2) {
-        alert("비밀번호를 확인해주세요!")
+        swal("", "비밀번호를 확인해주세요!", "warning");
       }
       else {
         firebase.database().ref('userInfo/' + uid).set({
@@ -300,15 +257,15 @@
           password: pwd1,
           phone: phone
         }, (error) => {
-          if (error) { alert(error) }
-          else { /*alert("수정 완료!")*/ }
+          if (error) { swal("오류 발생", error, "warning"); }
+          else {  }
         });
 
         const user = firebase.auth().currentUser;
         user.updatePassword(pwd1).then(() => {
-          alert("수정 완료!")
+          swal("수정 완료", "회원 정보가 수정되었습니다.", "success");
         }).catch((error) => {
-          alert(error)
+          swal("오류 발생", error, "warning");
         });
       }
     }
@@ -321,10 +278,15 @@
       firebase.database().ref('blacklist/' + uid).remove()
 
       user.delete().then(() => {
-        alert("회원 탈퇴가 완료되었습니다.")
-        location.href = './index.html'
+        swal("회원 탈퇴가 완료되었습니다.", {
+          icon: "success",
+        }).then(() => {
+          localStorage.removeItem('uid')
+          localStorage.removeItem('userName')
+          location.href = 'index.html';
+        })
       }).catch((error) => {
-        alert(error)
+        swal("오류 발생", error, "warning");
       });
     }
   </script>
