@@ -40,7 +40,7 @@
       }
 
       getBlacklistCnt(); // 블랙리스트 경고 횟수 표시
-      getStatistics(); // 통계 표시
+      statWeek(); // 통계 표시 (default: week)
     }
   </script>
 </head>
@@ -163,23 +163,14 @@
                     </div>
                     <div class="statistic-details mt-1">
                       <div class="statistic-details-item">
-                        <div class="text-small text-muted">
-                          <span class="text-primary"><i class="fas fa-caret-up" id="useNoDir"></i></span>
-                          <span id="useNoPer">1</span>%
-                        </div>
-                        <div class="detail-value" id="useNo">1회</div>
+                        <div class="detail-value" id="useNo"></div>
                         <div class="detail-name">이용 횟수</div>
                       </div>
                       <div class="statistic-details-item">
-                        <div class="text-small text-muted">
-                          <span class="text-primary"><i class="fas fa-caret-down" id="useTimeDir"></i></span>
-                          <span id="useTimePer">11</span>%
-                        </div>
-                        <div class="detail-value" id="useTime">50분</div>
+                        <div class="detail-value" id="useTime"></div>
                         <div class="detail-name">이용 시간</div>
                       </div>
                       <div class="statistic-details-item">
-                        <div class="text-small text-muted"><i class="fas fa-dash">-</i></div>
                         <div class="detail-value" id="blackCount"></div>
                         <div class="detail-name" id="blackDate">경고 횟수</div>
                       </div>
