@@ -63,18 +63,11 @@
     <div class="main-wrapper container">
       <!-- 헤더 네비게이션 -->
       <div class="navbar-bg"></div>
-      <nav class="navbar navbar-expand-lg main-navbar">
-        <a href="main.html" class="navbar-brand sidebar-gone-hide">RUN ON</a>
-        <a href="#" class="nav-link sidebar-gone-show" data-toggle="sidebar"><i class="fas fa-bars"></i></a>
-        <div class="nav-collapse">
-          <a class="sidebar-gone-show nav-collapse-toggle nav-link" href="#">
-            <i class="fas fa-ellipsis-v"></i>
-          </a>
-        </div>
+      <nav class="navbar navbar-expand main-navbar">
+        <a href="main.html" class="navbar-brand">RUN ON</a>
         <form class="form-inline ml-auto">
           <ul class="navbar-nav">
-            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"><i
-                  class="fas fa-search"></i></a></li>
+            <li><a href="#" data-toggle="search" class="nav-link nav-link-lg d-sm-none"></a></li>
           </ul>
         </form>
         <ul class="navbar-nav navbar-right">
@@ -96,52 +89,17 @@
                     <div class="time text-primary">2 Min Ago</div>
                   </div>
                 </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="far fa-user"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>You</b> and <b>Dedik Sugiharto</b> are now friends
-                    <div class="time">10 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-success text-white">
-                    <i class="fas fa-check"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    <b>Kusnaedi</b> has moved task <b>Fix bug header</b> to <b>Done</b>
-                    <div class="time">12 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-danger text-white">
-                    <i class="fas fa-exclamation-triangle"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Low disk space. Let's clean it!
-                    <div class="time">17 Hours Ago</div>
-                  </div>
-                </a>
-                <a href="#" class="dropdown-item">
-                  <div class="dropdown-item-icon bg-info text-white">
-                    <i class="fas fa-bell"></i>
-                  </div>
-                  <div class="dropdown-item-desc">
-                    Welcome to Stisla template!
-                    <div class="time">Yesterday</div>
-                  </div>
-                </a>
               </div>
               <div class="dropdown-footer text-center">
                 <a href="#">View All <i class="fas fa-chevron-right"></i></a>
               </div>
             </div>
           </li>
-          <li class="dropdown"><a href="#" data-toggle="dropdown"
+          <li class="dropdown">
+            <a href="#" data-toggle="dropdown"
               class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
-              <div class="d-sm-none d-lg-inline-block" id="name"></div>
+              <div class="d-inline-block" id="name"></div>
             </a>
             <div class="dropdown-menu dropdown-menu-right" id="mypageLink">
               <!-- 여기 이름 -->
@@ -150,7 +108,7 @@
         </ul>
       </nav>
 
-      <nav class="navbar navbar-secondary navbar-expand-lg">
+      <nav class="navbar navbar-secondary navbar-expand">
         <div class="container">
           <ul class="navbar-nav">
             <li class="nav-item">
@@ -228,9 +186,11 @@
   <script src="assets/modules/bootstrap-tagsinput/dist/bootstrap-tagsinput.min.js"></script>
   <script src="assets/modules/select2/dist/js/select2.full.min.js"></script>
   <script src="assets/modules/jquery-selectric/jquery.selectric.min.js"></script>
+  <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Page Specific JS File -->
   <script src="assets/js/page/bootstrap-modal.js"></script>
+  <script src="assets/js/page/modules-sweetalert.js"></script>
 
   <!-- Template JS File -->
   <script src="assets/js/scripts.js"></script>
@@ -238,18 +198,24 @@
   <script>
     var uid = localStorage.getItem('uid');
 
-    window.onload = function () {
-      if (uid == null) {
+    window.onload = function(){
+      var uid = localStorage.getItem('uid');
+      
+      if(uid==null){
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
+      }else{
+        document.querySelector('#mypageLink').innerHTML 
+          += '<a href="mypage.html" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
+          + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
       }
+
       viewReserve();
     }
 
     function goDetail(key) {
       sessionStorage.setItem('reserveKey', key)
-      console.log('눌리긴 함')
       location.href = "./reserv_detail.html"
     }
     function findColor(n) {
@@ -271,7 +237,6 @@
       // 2. 조회할 page 번호 가져오기
       //var curPage = get('page'); // 현재 page 번호
       var curPage = (new URL(document.location)).searchParams.get('page');
-      console.log(curPage)
       if (curPage == null || curPage == '' || curPage == '#') curPage = 1; // 지정 없는 경우 첫 번째 page
 
 
@@ -339,7 +304,6 @@
             var det = "goDetail('" + childSnapshot.key + "')"
 
             //state 0이용 전/1이용 중/2퇴실/3예약 취소
-            //console.log(childSnapshot.key) //예약키
             htmlString += '<div class="card card-' + findColor(s) + '">'
               + '<div class="card-header">'
               + '<h4 class="text-' + findState(s) + '</h4>&nbsp;'
@@ -363,15 +327,6 @@
     }).catch((error) => {
       console.error(error);
     });
-
-    document.querySelector('#mypageLink').innerHTML
-      += '<a href="mypage.html?' + uid + '" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
-      + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
-
-    function logout() {
-      localStorage.removeItem('uid')
-      localStorage.removeItem('userName')
-    }
   </script>
 </body>
 
