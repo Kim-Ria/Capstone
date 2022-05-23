@@ -27,11 +27,20 @@
   <!-- /END GA -->
   <script>
     window.onload = function(){
-      if(localStorage.getItem('uid')==null){
+      var uid = localStorage.getItem('uid');
+          
+      if(uid==null){
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
+      }else{
+        document.querySelector('#mypageLink').innerHTML 
+          += '<a href="mypage.html" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
+          + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
       }
+
+      getBlacklistCnt(); // 블랙리스트 경고 횟수 표시
+      getStatistics(); // 통계 표시
     }
   </script>
 </head>
@@ -111,10 +120,10 @@
                   <div class="card-icon bg-secondary text-white">
                     <i class="fas fa-cog"></i>
                   </div>
-                  <div class="card-body">
-                    <h4>예약하기</h4>
+                  <div class="card-body" onclick="reservUse()">
+                    <h4>예약</h4>
                     <p>도서관 좌석 예약</p>
-                    <a onclick = "reservUse()" class="card-cta">예약하기 <i class="fas fa-chevron-right"></i></a>
+                    <a class="card-cta">예약하기 <i class="fas fa-chevron-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -123,10 +132,10 @@
                   <div class="card-icon bg-secondary text-white">
                     <i class="fas fa-search"></i>
                   </div>
-                  <div class="card-body">
-                    <h4>예약조회</h4>
+                  <div class="card-body" onclick="location.href='./reserv_history.html'">
+                    <h4>조회</h4>
                     <p>좌석 예약 내역 조회</p>
-                    <a href="./reserv_history.html" class="card-cta">조회하기 <i class="fas fa-chevron-right"></i></a>
+                    <a class="card-cta">조회하기 <i class="fas fa-chevron-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -146,9 +155,12 @@
                     </div>
                   </div>
                   <div class="card-body">
-                    <canvas id="myChart2" height="180">
+                    <canvas id="graph" height="180">
                       <!-- 통계 -->
                     </canvas>
+                    <div id="graphText">
+
+                    </div>
                     <div class="statistic-details mt-1">
                       <div class="statistic-details-item">
                         <div class="text-small text-muted">
@@ -167,9 +179,9 @@
                         <div class="detail-name">이용 시간</div>
                       </div>
                       <div class="statistic-details-item">
-                        <div class="text-small text-muted"><i class="fas fa-dash"></i></div>
-                        <div class="detail-value">1 / 3회</div>
-                        <div class="detail-name">경고 횟수</div>
+                        <div class="text-small text-muted"><i class="fas fa-dash">-</i></div>
+                        <div class="detail-value" id="blackCount"></div>
+                        <div class="detail-name" id="blackDate">경고 횟수</div>
                       </div>
                     </div>
                   </div>
@@ -204,7 +216,6 @@
   <!-- JS Libraies -->
 
   <!-- Page Specific JS File -->
-  <script src="assets/js/server.js"></script>
   <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
 
   <!-- Template JS File -->
@@ -237,7 +248,6 @@
   </script>
 
   <script>
-    //const uid = location.href.split('?')[1]; 
     const uid = window.localStorage.getItem('uid')
 
     const dbRef = firebase.database().ref();
@@ -250,45 +260,49 @@
       console.error(error);
     });
 
-    document.querySelector('#mypageLink').innerHTML 
-      += '<a href="mypage.html?'+uid+'" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
-      + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
-    
-    function logout(){
-      localStorage.removeItem('uid')
-      localStorage.removeItem('userName')
-    }
-
     function reservUse(){
-    var query = firebase.database().ref('reserveData/');
-    //reserveData/(key모름)/userKey => equltTo(uid)
-    //state가 0이거나 1일때 접근 못하도록 하기
-    var key = 0;
-    query.on('value',(snapshot) => {
-      snapshot.forEach(function (child){
-        if (child.val().userKey == uid && (child.val().state == 0 || child.val().state == 1))
-          key = 1;
-      })
-      if (key == 1){
-        swal({
-        title: "예약 내역 존재",
-        text: "예약 내역이 이미 존재합니다.",
-        icon: "warning",
-        buttons: true,
-        dangerMode: true,
-      })
-        .then((cancel) => {
-          console.log('응 접근못해~')
-          if (cancel) {
-            location.href = './reserv_history.html';
-            return 0;
-        }});
-      }
-      else location.href="./reserv_room.html";
-    })
-  }
+      // 블랙리스트 경고 횟수 3회 -> 예약 불가능
+      var key = localStorage.getItem('uid');
+        
+      var queryBlack = firebase.database().ref('blacklist').child(key);
+      queryBlack.once('value', function(black){
+        // 블랙리스트 경고 횟수 3회
+        if(black.val()!=null && black.val().count==3){
+          if(black.val().count == 3){
+            swal("블랙리스트", black.val().endDate + "까지 이용 불가능합니다.", {icon: "warning",});
+          }
+        }
+        // 블랙리스트 아님 or 경고 횟수 3회 미만
+        else {
+          var query = firebase.database().ref('reserveData/');
+          //reserveData/(key모름)/userKey => equltTo(uid)
+          //state가 0이거나 1일때 접근 못하도록 하기
+          var key = 0;
+          query.on('value',(snapshot) => {
+            snapshot.forEach(function (child){
+              if (child.val().userKey == uid && (child.val().state == 0 || child.val().state == 1))
+                key = 1;
+            })
+            if (key == 1){
+              swal({
+                title: "예약 내역 존재",
+                text: "하나의 예약만 가능합니다.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+              })
+              .then((cancel) => {
+                if (cancel) {
+                  location.href = './reserv_history.html';
+                  return 0;
+              }});
+            }
+            else location.href="./reserv_room.html";
+          })
+        }
+      }) 
+    }
   </script>
-
 </body>
 
 </html>
