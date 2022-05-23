@@ -15,6 +15,13 @@ function login() {
   }
 }
 
+/** 로그아웃 */
+function logout(){
+  localStorage.removeItem('uid');
+  localStorage.removeItem('userName');
+}
+
+
 
 /** reserv_seat.html */
 /** 예약 확인 alert */
@@ -35,11 +42,15 @@ function finishReserv(no) {
     });
 }
 
+
+
 /** reserv_room.html */
 /** 시간 선택후 실행되는 함수 */
 function chooseTime(no) {
   console.log(no);
 }
+
+
 
 /** reserv_detail.html */
 /** 예약 상세 조회 페이지 alert */
@@ -86,8 +97,44 @@ function extendRev() {
 
 
 
-/** mypage.html */
+/** main.html */
 /** 마이페이지 통계 */
+// 블랙리스트 경고 횟수 체크
+function getBlacklistCnt(){
+  var key = localStorage.getItem('uid');
+
+  var query = firebase.database().ref('blacklist').child(key);
+  query.once('value', function(blackList){
+    if(blackList.val()==null){ // 블랙리스트에 존재하지 않는 회원
+      document.querySelector('#blackCount').innerHTML = '0 / 3회';
+    }else{
+      var endDate = new Date(blackList.val().endDate);
+      var today = new Date(getToday());
+
+      if(endDate < today) { // 이용 정지 기간 지난 경우
+        query.set({}); // 블랙리스트에서 제거
+        document.querySelector('#blackCount').innerHTML = '0 / 3회';
+      } else { // 이용 정지 기간 지나지 않은 경우
+        var count = blackList.val().count;
+        
+        if(count == 3){ // 경고 3회
+          document.querySelector('#blackCount').innerHTML = '이용 정지';
+          document.querySelector('#blackDate').innerHTML = blackList.val().endDate + ' 까지';
+        }else{
+          document.querySelector('#blackCount').innerHTML = count + ' / 3회';
+        }
+      }
+    }
+  })
+}
+
+// 통계 Text로 찍어보기
+function getStatistics(){
+  var uid = localStorage.getItem('uid');
+  var query = firebase.database().ref('reserveData').orderByKey().equalTo(uid);
+}
+
+
 // 일주일 통계
 function statWeek() {
   document.getElementById("statW").className = "btn active";
