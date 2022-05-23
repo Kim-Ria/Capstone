@@ -129,9 +129,47 @@ function getBlacklistCnt(){
 }
 
 // 통계 Text로 찍어보기
-function getStatistics(){
-  var uid = localStorage.getItem('uid');
-  var query = firebase.database().ref('reserveData').orderByKey().equalTo(uid);
+function getStatistics(start, end){
+  var today = new Date(getToday());
+  var time = 0;
+  var cnt = 0;
+
+  var key = localStorage.getItem('uid');
+  var query = firebase.database().ref('reserveData').orderByChild('userKey').equalTo(key);
+  query.once('value', function(resList){
+    resList.forEach(function(res){
+      var resDate = new Date(res.val().date);
+      if(res.val().state == 2 && resDate >= start && resDate < end){ // 이용 완료한 좌석만 체크
+        cnt++;
+
+        var sHour = parseInt(res.val().startTime.substr(0, 2));
+        var sMin = parseInt(res.val().startTime.substr(3, 2));
+        var eHour = parseInt(res.val().endTime.substr(0, 2));
+        var eMin = parseInt(res.val().endTime.substr(3, 2));
+
+        if(eMin-sMin<0) {
+          eHour--;
+          eMin+=60;
+        }
+        eMin = eMin-sMin;
+        eHour = eHour-sHour;
+
+        time += (eHour*60) + eMin;
+      }
+    })
+  }).then(function(){
+    var hour = parseInt(time/60);
+    var minute = parseInt(time%60);
+
+    // 이용 횟수
+    document.getElementById("useNo").innerText = cnt + "회";
+
+    // 이용 시간
+    if(hour!=0)
+      document.getElementById("useTime").innerText = hour+"시간 "+minute+"분";
+    else
+      document.getElementById("useTime").innerText = minute+"분";
+  })
 }
 
 
@@ -140,14 +178,15 @@ function statWeek() {
   document.getElementById("statW").className = "btn active";
   document.getElementById("statM").className = "btn btn-outline-primary";
   document.getElementById("statY").className = "btn btn-outline-primary";
+  
+  // 7일 전 날짜 계산
+  var now = new Date();
+  var past = new Date();
+  var diff = now.getDate();
+  past.setDate(diff - 7);
+  now.setDate(diff + 1);
 
-  document.getElementById("useNo").innerText = "1회";
-  document.getElementById("useNoPer").innerText = "1";
-  document.getElementById("useNoDir").className = "fas fa-caret-up";
-
-  document.getElementById("useTime").innerText = "50분";
-  document.getElementById("useTimePer").innerText = "11";
-  document.getElementById("useTimeDir").className = "fas fa-caret-down";
+  getStatistics(past, now);
 }
 
 // 한달 통계
@@ -156,13 +195,14 @@ function statMonth() {
   document.getElementById("statM").className = "btn active";
   document.getElementById("statY").className = "btn btn-outline-primary";
 
-  document.getElementById("useNo").innerText = "3회";
-  document.getElementById("useNoPer").innerText = "2";
-  document.getElementById("useNoDir").className = "fas fa-caret-down";
+  // 이번 달 1일 ~ 다음 달 1일 전까지
+  var today = new Date();
+  var y = today.getFullYear();
+  var m = today.getMonth()+1;
+  var start = new Date(y+'-'+m+'-'+'01');
+  var end = new Date(y+'-'+(m+1)+'-'+'01');
 
-  document.getElementById("useTime").innerText = "1시간 10분";
-  document.getElementById("useTimePer").innerText = "22";
-  document.getElementById("useTimeDir").className = "fas fa-caret-down";
+  getStatistics(start, end);
 }
 
 // 1년 통계
@@ -171,13 +211,12 @@ function statYear() {
   document.getElementById("statM").className = "btn btn-outline-primary";
   document.getElementById("statY").className = "btn active";
 
-  document.getElementById("useNo").innerText = "5회";
-  document.getElementById("useNoPer").innerText = "3";
-  document.getElementById("useNoDir").className = "fas fa-caret-down";
+  // 올해 1월 1일 ~ 내년 1월 1일 전까지
+  var y = new Date().getFullYear();
+  var start = new Date(y+'-01-01');
+  var end = new Date((y+1)+'-01-01');
 
-  document.getElementById("useTime").innerText = "3시간 30분";
-  document.getElementById("useTimePer").innerText = "33";
-  document.getElementById("useTimeDir").className = "fas fa-caret-up";
+  getStatistics(start, end);
 }
 
 
