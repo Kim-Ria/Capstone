@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="assets/css/components.css">
   <!-- Start GA -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=UA-94034622-3"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
@@ -41,6 +44,7 @@
 
       getBlacklistCnt(); // 블랙리스트 경고 횟수 표시
       statWeek(); // 통계 표시 (default: week)
+      drawGraph(); // 그래프 그리기
     }
   </script>
 </head>
@@ -155,12 +159,9 @@
                     </div>
                   </div>
                   <div class="card-body">
-                    <canvas id="graph" height="180">
-                      <!-- 통계 -->
+                    <canvas id="graph">
+                      
                     </canvas>
-                    <div id="graphText">
-
-                    </div>
                     <div class="statistic-details mt-1">
                       <div class="statistic-details-item">
                         <div class="detail-value" id="useNo"></div>
@@ -265,19 +266,18 @@
         }
         // 블랙리스트 아님 or 경고 횟수 3회 미만
         else {
-          var query = firebase.database().ref('reserveData/');
-          //reserveData/(key모름)/userKey => equltTo(uid)
+          var query = firebase.database().ref('reserveData').child(uid);
           //state가 0이거나 1일때 접근 못하도록 하기
           var key = 0;
-          query.on('value',(snapshot) => {
-            snapshot.forEach(function (child){
-              if (child.val().userKey == uid && (child.val().state == 0 || child.val().state == 1))
-                key = 1;
+          query.on('value',(resList) => {
+            resList.forEach(function(res){
+              if(res.val().state == 0 || res.val().state == 1)
+                key = 1; // 예약 내역 존재
             })
-            if (key == 1){
+            if(key==1){
               swal({
                 title: "예약 내역 존재",
-                text: "하나의 예약만 가능합니다.",
+                text: "한 번에 하나의 예약만 가능합니다.",
                 icon: "warning",
                 buttons: true,
                 dangerMode: true,
@@ -286,9 +286,11 @@
                 if (cancel) {
                   location.href = './reserv_history.html';
                   return 0;
-              }});
+                }
+              });
+            }else{ // key=0인 경우
+              location.href="./reserv_room.html";
             }
-            else location.href="./reserv_room.html";
           })
         }
       }) 
