@@ -301,7 +301,8 @@
 
         for (var i = (curPage - 1) * 100; i < curPage * 100; i += 10) {
           if (i >= index.length) return;
-          var det = "goDetail('" + index[i + 1] + "')"
+          var det = "goDetail('" + index[i + 9] + "')"
+          console.log(index[i+9])
           //page.key,v.endTime,v.extension,v.name,v.room,v.seat,v.startTime,v.state,v.tagtime
           //태그타임 상태 start seat room name extension endTime date key
           //0        1      2   3    4    5     6         7     8    9
