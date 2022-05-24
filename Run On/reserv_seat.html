@@ -255,19 +255,21 @@
             var reserveQuery = firebase.database().ref("reserveData");
             reserveQuery.on('value', (reserveshot) => {
               key = 0;
-              reserveshot.forEach(function (childreserve) { //for문 도는 중
-                //열람실 번호와 좌석 번호가 일치하며 사용 불가한 좌석일 때
-                if (childreserve.val().seat == childSnapshot.val().seatnum
-                  && childreserve.val().room == num
-                  && (childreserve.val().state == 0 || childreserve.val().state == 1)
-                  //compareTime 함수 보류
-                  && compareTime(childreserve.val().startTime, time)) {
-                  //죽은거
-                  document.querySelector("#" + tableId).innerHTML
-                    = '<button type="button" class="btn" disabled>'
-                    + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
-                  key = 1;
-                }
+              reserveshot.forEach(function (child1) { 
+                child1.forEach(function(childreserve){ //for문 도는 중
+                  //열람실 번호와 좌석 번호가 일치하며 사용 불가한 좌석일 때
+                  if (childreserve.val().seat == childSnapshot.val().seatnum
+                    && childreserve.val().room == num
+                    && (childreserve.val().state == 0 || childreserve.val().state == 1)
+                    //compareTime 함수 보류
+                    && compareTime(childreserve.val().startTime, time)) {
+                    //죽은거
+                    document.querySelector("#" + tableId).innerHTML
+                      = '<button type="button" class="btn" disabled>'
+                      + numberPad(childSnapshot.val().seatnum, 2) + '</button>';
+                    key = 1;
+                  }
+                })
               })
               if (key == 0) {
                 document.querySelector("#" + tableId).innerHTML
@@ -293,15 +295,6 @@
         return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
       }
       else return n;
-    }
-
-    function today() {
-      var date = new Date();
-      var year = date.getFullYear();
-      var month = date.getMonth() + 1;
-      var day = date.getDate();
-      var d = year + '-' + numberPad(month, 2) + '-' + numberPad(day, 2)
-      return d
     }
 
     //usable 0 1 변경
@@ -330,9 +323,9 @@
           if (cancel) {
             //좌석 값 주기
             sessionStorage.setItem("seatNum", n);
-            firebase.database().ref("reserveData/").push({
+            firebase.database().ref("reserveData").child(uid).push({
               name: window.localStorage.getItem('userName'),
-              date: today(),
+              date: getToday(),
               extension: 0,
               room: num,
               seat: n,
@@ -340,7 +333,6 @@
               tagtime: '00:00',
               state: 0,
               endTime: numberPad(time2, 2) + ':00',
-              userKey: window.localStorage.getItem('uid')
             });
             swal("예약이 완료되었습니다.", {
               icon: "success",
