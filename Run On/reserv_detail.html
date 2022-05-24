@@ -163,7 +163,6 @@
           var query = firebase.database().ref("reserveData").child(userKey).child(resKey);//예약키로 조회
           query.on('value', (snapshot) => {
             var s = snapshot.val();
-
             htmlString += '<div id = "content"></div><div class="main-content">'
               + '<section class="section"><div class="section-header">'
               + '<h1>' + setState(s.state) + '</h1></div><div class="card card-primary col-12">'
@@ -194,8 +193,8 @@
         function setState(state) {
           if (state == 0) return "이용 예정";
           else if (state == 1) return "이용 중";
-          else if (state == 2) return "예약 취소";
-          else return "퇴실 완료";
+          else if (state == 2) return "퇴실 완료";
+          else return "예약 취소";
         }
 
         function numberPad(n, width) {
