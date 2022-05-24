@@ -96,8 +96,7 @@
             </div>
           </li>
           <li class="dropdown">
-            <a href="#" data-toggle="dropdown"
-              class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
               <div class="d-inline-block" id="name"></div>
             </a>
@@ -201,15 +200,15 @@
   <script>
     var uid = localStorage.getItem('uid');
 
-    window.onload = function(){
+    window.onload = function () {
       var uid = localStorage.getItem('uid');
-      
-      if(uid==null){
+
+      if (uid == null) {
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
-      }else{
-        document.querySelector('#mypageLink').innerHTML 
+      } else {
+        document.querySelector('#mypageLink').innerHTML
           += '<a href="mypage.html" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
           + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
       }
@@ -243,7 +242,7 @@
       if (curPage == null || curPage == '' || curPage == '#') curPage = 1; // 지정 없는 경우 첫 번째 page
 
 
-      var query = firebase.database().ref('reserveData').orderByChild('userKey').equalTo(uid);
+      var query = firebase.database().ref('reserveData/' + uid).orderByChild('date');
       var index = [];
       var maxPage, resNum;
       query.once('value').then(function (pageList) {
@@ -251,11 +250,16 @@
         maxPage = Math.ceil(resNum / 10);
 
         var no = 0;
+        // 날짜 순으로 정렬 -> 모든 정보를 
         pageList.forEach(function (page) {
-          if (!(no % 10)) // 10배수인 경우
-            index.push(page.key); // page 시작점 key 저장
+          //예약번호, state, date, startTime, endTime, room, seat
+          var v = page.val();
+          index.push(page.key, v.date, v.endTime, v.extension, v.name, v.room, v.seat, v.startTime,
+            v.state, v.tagtime); //총 10개
           no++;
         })
+
+        index.reverse();
 
         // 2-2. page 버튼 표시하기 (5개)
         var start = parseInt(curPage) - 2;
@@ -291,33 +295,27 @@
 
         document.querySelector('.pagination').innerHTML = pageHtml; // html 추가
       }).then(function () {
-        // 3. 현재 page 첫 번째 key부터 10개 가져오기
-        var queryRes = firebase.database().ref('reserveData').orderByKey().startAt(index[curPage - 1])
-        if (curPage < maxPage) // 마지막 page 아닌 경우 => 조회 끝 지점 정해주기
-          queryRes = queryRes.endBefore(index[curPage]);
+        //curPage 반영해서 구현해야 함
+        var htmlString = '';
+        //curpage default value : 1
 
-        queryRes.once('value').then(function (resList) {
-          var no = ((curPage - 1) * 10) + 1;
-
-          var htmlString = '';
-
-          resList.forEach(function (childSnapshot) {
-            var s = childSnapshot.val().state;
-
-            var det = "goDetail('" + childSnapshot.key + "')"
-
-            //state 0이용 전/1이용 중/2퇴실/3예약 취소
-            htmlString += '<div class="card card-' + findColor(s) + '">'
-              + '<div class="card-header">'
-              + '<h4 class="text-' + findState(s) + '</h4>&nbsp;'
-              + childSnapshot.val().date + ' | ' + childSnapshot.val().startTime + '~' + childSnapshot.val().endTime
-              + '</div><div class="card-body text-dark">'
-              + '도서관 제' + childSnapshot.val().room + '열람실 ' + childSnapshot.val().seat + '번 &nbsp;&nbsp;&nbsp;'
-              + '<a onclick = ' + det + ' clas="text-muted">예약 상세&nbsp;＞</a>'
-              + '</div></div>';
-          })
+        for (var i = (curPage - 1) * 100; i < curPage * 100; i += 10) {
+          console.log(index[i], index[i + 1], index[i + 2], index[i + 3], index[i + 4], index[i + 5], index[i + 6])
+          if (i >= index.length) return;
+          var det = "goDetail('" + index[i + 1] + "')"
+          //page.key,v.endTime,v.extension,v.name,v.room,v.seat,v.startTime,v.state,v.tagtime
+          //태그타임 상태 start seat room name extension endTime date key
+          //0        1      2   3    4    5     6         7     8    9
+          htmlString = '<div class="card card-' + findColor(index[i + 1]) + '">'
+            + '<div class="card-header">'
+            + '<h4 class="text-' + findState(index[i + 1]) + '</h4>&nbsp;'
+            + index[i + 8] + ' | ' + index[i + 2] + '~' + index[i + 7]
+            + '</div><div class="card-body text-dark">'
+            + '도서관 제' + index[i + 4] + '열람실 ' + index[i + 3] + '번 &nbsp;&nbsp;&nbsp;'
+            + '<a onclick = ' + det + ' clas="text-muted">예약 상세&nbsp;＞</a>'
+            + '</div></div>';
           document.querySelector("#cardBody").innerHTML += htmlString;
-        })
+        }
       })
     }
 
