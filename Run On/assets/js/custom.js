@@ -95,8 +95,6 @@ function extendRev() {
   swal("예약 연장", "이용 시간이 2시간 연장되었습니다.", "success");
 }
 
-
-
 /** main.html */
 /** 마이페이지 통계 */
 // 블랙리스트 경고 횟수 체크
@@ -133,13 +131,14 @@ function getStatistics(start, end){
   var today = new Date(getToday());
   var time = 0;
   var cnt = 0;
+  var list = {};
 
   var key = localStorage.getItem('uid');
-  var query = firebase.database().ref('reserveData').orderByChild('userKey').equalTo(key);
+  var query = firebase.database().ref('reserveData').child(key).orderByChild('date');
   query.once('value', function(resList){
     resList.forEach(function(res){
       var resDate = new Date(res.val().date);
-      if(res.val().state == 2 && resDate >= start && resDate < end){ // 이용 완료한 좌석만 체크
+      if(res.val().state == 2 && resDate >= start && resDate < end){
         cnt++;
 
         var sHour = parseInt(res.val().startTime.substr(0, 2));
@@ -169,6 +168,108 @@ function getStatistics(start, end){
       document.getElementById("useTime").innerText = hour+"시간 "+minute+"분";
     else
       document.getElementById("useTime").innerText = minute+"분";
+  })
+}
+
+// 그래프
+function drawGraph(){
+  var x = []; // x축 값
+  var start = new Date(getToday());
+  start.setDate(start.getDate()-7);
+
+  var context = document.getElementById('graph').getContext('2d');
+  var chart = new Chart(context, {
+    type: 'bar', // 차트 형태
+    data: { // 차트 데이터
+        labels: [ ], // x축 label
+        datasets: [ ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: (ctx) => 'Point Style: ' + ctx.chart.data.datasets[0].pointStyle,
+            },
+        }
+    }
+  });
+
+  // 7일 날짜, 이용 횟수, 시간 추가
+  var newDataset = {
+    label: '이용 시간', type: 'bar', fill: false,
+    data: [],
+    backgroundColor: [], borderColor: [], borderWidth: 1,
+  }
+
+  var list = [];
+
+  var query = firebase.database().ref('reserveData').child(localStorage.getItem('uid')).orderByChild('date');
+  query.once('value', function(resList){
+    var time = 0;
+    var beforeDate = null;
+    var addFlag = 0;
+    var addDate = null;
+
+    resList.forEach(function(res){
+      if(beforeDate != res.val().date){ // 이전 날짜와 다름
+        beforeDate = res.val().date;
+        addDate = res.val().date;        
+        time = 0;
+        addFlag = 1;
+      }
+
+      var sHour = parseInt(res.val().startTime.substr(0, 2));
+      var sMin = parseInt(res.val().startTime.substr(3, 2));
+      var eHour = parseInt(res.val().endTime.substr(0, 2));
+      var eMin = parseInt(res.val().endTime.substr(3, 2));
+
+      if(eMin-sMin<0) {
+        eHour--;
+        eMin+=60;
+      }
+      eMin = eMin-sMin;
+      eHour = eHour-sHour;
+
+      time += (eHour*60) + eMin;
+
+      if(addFlag == 1 && res.val().state == 2){
+        list.push(time, addDate);
+        addFlag = 0;
+      }
+    })
+  }).then(function(){
+    list.reverse();
+    var index = 0;
+  
+    // 예약 내역에 없는 날짜는 0으로 표시
+    var today = new Date(getToday());
+    var diff = today;
+    today.setDate(diff.getDate()+1);
+
+    for(i=0; i<7; i++){
+      diff = today;
+      today.setDate(diff.getDate()-1);
+      chart.data.labels.unshift(today.getDate()+"일");
+
+      var year = today.getFullYear();
+      var month = ('0' + (today.getMonth() + 1)).slice(-2);
+      var day = ('0' + today.getDate()).slice(-2);
+      var dateString = year + '-' + month + '-' + day;
+
+      if(dateString == list[index]){ // list에 존재하는 날짜
+        newDataset.data.unshift(list[index+1]);
+        index+=2;
+      }else{//list에 존재하지 않는 날짜
+        newDataset.data.unshift(0);
+      }
+
+      newDataset.backgroundColor.unshift('rgba(255, 164, 38, 0.5)');
+      newDataset.borderColor.unshift('rgba(255, 164, 38, 0.5)');
+    }
+
+    chart.data.datasets.push(newDataset);
+    chart.update();
   })
 }
 
@@ -218,9 +319,6 @@ function statYear() {
 
   getStatistics(start, end);
 }
-
-
-
 
 /** adminMember.html */
 /** 회원 조회 */
@@ -598,4 +696,128 @@ function getToday(){
   var dateString = year + '-' + month + '-' + day;
 
   return dateString;
+}
+
+
+/** adminStatistics.html */
+/** 관리자 통계 */
+function setTimeStat(){
+  var context1 = document.getElementById('timeCanvas').getContext('2d');
+  var chart1 = new Chart(context1, {
+    type: 'bar', // 차트 형태
+    data: { // 차트 데이터
+        labels: [ '제1열람실', '제2열람실', '제3열람실' ], // x축 label
+        datasets: [ ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: (ctx) => 'Point Style: ' + ctx.chart1.data.datasets[0].pointStyle,
+            },
+        }
+    }
+  });
+
+  var dataset1 = {
+    label: '평균 이용 시간(분)', type: 'bar', fill: false,
+    data: [],
+    backgroundColor: [], borderColor: [], borderWidth: 1,
+  }
+
+  var context2 = document.getElementById('cntCanvas').getContext('2d');
+  var chart2 = new Chart(context2, {
+    type: 'bar', // 차트 형태
+    data: { // 차트 데이터
+        labels: [ '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', '23', '24' ], // x축 label
+        datasets: [ ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            title: {
+                display: true,
+                text: (ctx) => 'Point Style: ' + ctx.chart2.data.datasets[0].pointStyle,
+            },
+        }
+    }
+  });
+
+  var dataset2 = {
+    label: '이용자 수(명)', type: 'line', fill: false,
+    data: [],
+    backgroundColor: [], borderColor: [], borderWidth: 1,
+  }
+
+  // 열람실별 이용 시간 체크
+  var time = [0,0,0,0,0];
+  var cnt = [0,0,0,0,0];
+  var person = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; // 8시~24시
+  var timelist = [];
+  var index;
+
+  // 이용 완료 내역만 가져오기
+  var query = firebase.database().ref('reserveData');
+  query.once('value', function(resList){
+    resList.forEach(function(res){
+      res.forEach(function(r){
+        if(r.val().state == 2){
+
+          var sHour = parseInt(r.val().startTime.substr(0, 2));
+          var sMin = parseInt(r.val().startTime.substr(3, 2));
+          var eHour = parseInt(r.val().endTime.substr(0, 2));
+          var eMin = parseInt(r.val().endTime.substr(3, 2));
+
+          // 이용자 수 체크 (시작, 끝 시간만 배열에 저장)
+          timelist.push(sHour, eHour);
+
+          if(eMin-sMin<0) {
+            eHour--;
+            eMin+=60;
+          }
+          eMin = eMin-sMin;
+          eHour = eHour-sHour;
+
+          index = parseInt(r.val().room)-1;
+          time[index] += (eHour*60) + eMin;
+          cnt[index]++;
+        }
+      })
+    })
+  }).then(function(){    
+    for(i=0; i<3; i++){
+      dataset1.data.push((time[i]/cnt[i]).toFixed(2));
+      dataset1.backgroundColor.push('rgba(255, 164, 38, 0.5)');
+      dataset1.borderColor.push('rgba(255, 164, 38, 0.5)');
+    }
+
+    chart1.data.datasets.push(dataset1);
+    chart1.update();
+
+    for(i=0; i<timelist.length; i+=2){
+      for(j=timelist[i]; j<timelist[i+1]; j++){
+        person[j-8]++;
+        console.log((j)+"시 이용")
+      }
+    }
+    for(i=0; i<person.length; i++){
+      dataset2.data.push(person[i]);
+      dataset2.backgroundColor.push('rgba(255, 164, 38, 0.5)');
+      dataset2.borderColor.push('rgba(255, 164, 38, 0.5)');
+    }
+
+    chart2.data.datasets.push(dataset2);
+    chart2.update();
+  })
+}
+
+function setCntStat(){
+  
+
+  
+
+  // 시간대별 이용자 수 체크
+  
+  
 }
