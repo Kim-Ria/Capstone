@@ -811,13 +811,3 @@ function setTimeStat(){
     chart2.update();
   })
 }
-
-function setCntStat(){
-  
-
-  
-
-  // 시간대별 이용자 수 체크
-  
-  
-}
