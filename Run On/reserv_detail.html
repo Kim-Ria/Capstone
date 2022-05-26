@@ -1,4 +1,4 @@
-<!-- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -126,6 +126,7 @@
         <script src="assets/modules/nicescroll/jquery.nicescroll.min.js"></script>
         <script src="assets/modules/moment.min.js"></script>
         <script src="assets/js/stisla.js"></script>
+        <script src="assets/js/page/forms-advanced-forms.js"></script>
   
         <!-- JS Libraies -->
         <script src="assets/modules/sweetalert/sweetalert.min.js"></script>
@@ -154,6 +155,7 @@
             }
   
             setContent();
+            autoExit(); // 자동 퇴실
           }
   
   
@@ -178,13 +180,14 @@
                 htmlString += '&nbsp;<button onclick="cancelRev(' + s.room + ')" class="btn btn-danger">취소</button>&nbsp;'
               else if (s.state == 1) {
                 if (s.extension < 3 && s.endTime != '24:00') { //연장횟수도 바꿔줘야 함
-                  var link = "extendRe('"+s.extension+"','"+s.endTime+"')"
+                  var link = "extendRe('" + s.extension + "','" + s.endTime + "')"
                   htmlString += '&nbsp;<button onclick="' + link + '" class="btn btn-primary">연장</button>'
                 }
                 else if (s.extension == 3 || s.endTime == '24:00')
                   htmlString += '&nbsp;<button class="btn" disabled>연장</button>'
                 htmlString += '&nbsp;<button onclick="checkO(' + s.room + ')" class="btn btn-danger">퇴실</button>&nbsp;'
               }
+  
   
               document.querySelector("#content").innerHTML += htmlString + '</div></div></section></div>'
             })

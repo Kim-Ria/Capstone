@@ -22,7 +22,6 @@ function logout(){
 }
 
 
-
 /** reserv_seat.html */
 /** 예약 확인 alert */
 function finishReserv(no) {
@@ -809,5 +808,25 @@ function setTimeStat(){
 
     chart2.data.datasets.push(dataset2);
     chart2.update();
+  })
+}
+
+function autoExit(){
+  var key = localStorage.getItem('uid');
+  var query = firebase.database().ref('reserveData').child(key).orderByChild('state').equalTo(1);
+
+  query.once('value', function(resList){
+    resList.forEach(function(res){
+      var resDate = new Date(res.val().date);
+      resDate.setHours(res.val().endTime.substr(0, 2));
+      resDate.setMinutes(res.val().endTime.substr(3, 2));
+      var today = new Date();
+
+      if(resDate < today){ // 현재 시간보다 예약 끝 시간이 이전인 경우
+        var queryUpdate = firebase.database().ref('reserveData').child(key).child(res.key)
+        queryUpdate.update({ state: 2}); // state 퇴실로 변경
+        swal("이용 완료", "이용 시간이 만료되어 자동 퇴실되었습니다.", "warning");
+      }
+    })
   })
 }
