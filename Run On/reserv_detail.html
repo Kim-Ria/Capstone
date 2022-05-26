@@ -216,36 +216,32 @@
             else return numberPad(h + 2, 2) + ':' + numberPad(m, 2);
           }
   
-          // function extendRe(ext, end) {
-          //   var userKey = localStorage.getItem('uid');
-          //   swal({
-          //     title: "이용 연장",
-          //     text: "연장하시겠습니까?",
-          //     icon: "warning",
-          //     buttons: true,
-          //     dangerMode: true,
-          //   })
-          //     .then((cancel) => {
-          //       if (cancel) {
-          //         const query = firebase.database().ref("reserveData").child(userKey).child(resKey);//예약키로 조회
-          //         query.update({ //연장횟수 수정되도록
-          //           extension: ext + 1,
-          //           endTime: extTime(end)
-          //           //usableTime: use + 180
-          //         })
+          function extendRe(ext, end) {
+            var userKey = localStorage.getItem('uid');
+            swal({
+              title: "이용 연장",
+              text: "연장하시겠습니까?",
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            })
+              .then((cancel) => {
+                if (cancel) {
+                  const query = firebase.database().ref("reserveData").child(userKey).child(resKey);//예약키로 조회
+                  query.update({ //연장횟수 수정되도록
+                    extension: ext + 1,
+                    endTime: extTime(end)
+                    //usableTime: use + 180
+                  })
   
-          //         swal("연장 처리 완료되었습니다.", {
-          //           icon: "success",
-          //         }).then(() => { location.href = './main.html'; })
-          //       }
-          //     });
-          // }
+                  swal("연장 처리 완료되었습니다.", {
+                    icon: "success",
+                  }).then(() => { location.href = './main.html'; })
+                }
+              });
+          }
   
           // 퇴실 alert
-  
-          function extendRe(k, m) {
-            console.log(k, m)
-          }
           function checkO(num) {
             var userKey = localStorage.getItem('uid');
             var query = firebase.database().ref('seat/열람실' + num + '/set');
