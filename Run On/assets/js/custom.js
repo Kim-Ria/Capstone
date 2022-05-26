@@ -825,7 +825,7 @@ function autoExit(){
       if(resDate < today){ // 현재 시간보다 예약 끝 시간이 이전인 경우
         var queryUpdate = firebase.database().ref('reserveData').child(key).child(res.key)
         queryUpdate.update({ state: 2}); // state 퇴실로 변경
-        swal("자동 퇴실", "이용 시간이 만료되어 자동 퇴실되었습니다.", "warning");
+        swal("이용 완료", "이용 시간이 만료되어 자동 퇴실되었습니다.", "warning");
       }
     })
   })
