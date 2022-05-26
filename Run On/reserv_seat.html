@@ -53,17 +53,17 @@
   <script>
     window.onload = function () {
       var uid = localStorage.getItem('uid');
-          
-      if(uid==null){
+
+      if (uid == null) {
         swal("로그인이 필요한 기능입니다.", {
           icon: "warning",
         }).then(() => { location.href = 'index.html'; })
-      }else{
-        document.querySelector('#mypageLink').innerHTML 
+      } else {
+        document.querySelector('#mypageLink').innerHTML
           += '<a href="mypage.html" class="dropdown-item has-icon"><i class="far fa-user"></i>마이페이지</a>'
           + '<a href="index.html" class="dropdown-item has-icon text-danger" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>';
       }
-      
+
       setTable();
       setSeat();
     }
@@ -108,8 +108,7 @@
             </div>
           </li>
           <li class="dropdown">
-            <a href="#" data-toggle="dropdown"
-              class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
               <img alt="image" src="assets/img/avatar/avatar-1.png" class="rounded-circle mr-1">
               <div class="d-inline-block" id="name"></div>
             </a>
@@ -255,8 +254,8 @@
             var reserveQuery = firebase.database().ref("reserveData");
             reserveQuery.on('value', (reserveshot) => {
               key = 0;
-              reserveshot.forEach(function (child1) { 
-                child1.forEach(function(childreserve){ //for문 도는 중
+              reserveshot.forEach(function (child1) {
+                child1.forEach(function (childreserve) { //for문 도는 중
                   //열람실 번호와 좌석 번호가 일치하며 사용 불가한 좌석일 때
                   if (childreserve.val().seat == childSnapshot.val().seatnum
                     && childreserve.val().room == num
@@ -323,6 +322,8 @@
           if (cancel) {
             //좌석 값 주기
             sessionStorage.setItem("seatNum", n);
+
+            //firebase DB에 넣는 코드
             firebase.database().ref("reserveData").child(uid).push({
               name: window.localStorage.getItem('userName'),
               date: getToday(),
@@ -334,6 +335,74 @@
               state: 0,
               endTime: numberPad(time2, 2) + ':00',
             });
+
+            //CSV파일 생성하는 코드
+            /**************************************************************************************/
+            const objectToCsv = function (data) {
+
+              const csvRows = [];
+
+              // get the headers -> 컬럼값 띄우기
+              const headers = Object.keys(data[0]);
+              csvRows.push(headers.join(','));
+
+              // console.log(headers);
+
+              // loop over the rows -> 속성값
+              for (const row of data) {
+                const values = headers.map(header => {
+                  // form escaped comma separated values
+                  const escaped = ('' + row[header]).replace(/"/g, '\\"') // ??
+                  return `"${escaped}"`;  // "","".. 이런식으로 출력
+                });
+
+                //console.log(values.join(','));
+                csvRows.push(values.join(','));
+              }
+
+              // console.log(csvRows);
+              return csvRows.join('\n');
+            };
+
+            const json = [{ "tag_id": "1", "room_no": "2", "seat_no": "01", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
+            { "tag_id": "2", "room_no": "2", "seat_no": "02", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
+            { "tag_id": "3", "room_no": "2", "seat_no": "03", "state": "이용 중", "user_name": "신*준", "usable_time": "12:30~15:00", "extension_time": "14:30~14:59", "extension_cnt": "0" },
+            { "tag_id": "4", "room_no": "2", "seat_no": "04", "state": "이용 중", "user_name": "김*아", "usable_time": "11:00~15:30", "extension_time": "15:00~15:29", "extension_cnt": "1" },]
+
+            console.log(json)
+
+            //json 수정
+            const userName = window.localStorage.getItem('userName')
+            const name = userName[0] + '*' + userName[2]
+
+            json[n - 1].state = "이용 중"
+            json[n - 1].user_name = name
+            json[n - 1].usable_time = numberPad(time, 2) + ':00~' + numberPad(time2, 2) + ':00'
+            json[n - 1].extension_time = numberPad(String(parseInt(time2) - 1), 2) + ':30~' + numberPad(String(parseInt(time2) - 1), 2) + ':59'
+            json[n - 1].extension_cnt = '0'
+            //console.log(json)
+
+            const csv = objectToCsv(json)
+            //console.log(csv)
+            /*****************************************************************************************/
+
+            /************CSV 파일 다운로드*********************************************************************************/
+            const download = function (data) {
+              // Blob 객체 => 파일의 데이터 가공
+              const blob = new Blob(["\ufeff"+data], { type: 'text/csv' });
+              const url = window.URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              const fileName='import_'+getCuurrentDate()
+              a.setAttribute('hidden', '');
+              a.setAttribute('href', url);
+              a.setAttribute('download', fileName+'.csv'); // 파일명: import_YYYYMMDDHHMMSS.csv => 시간 받아오기 필요
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+            }
+            download(csv)
+            /*****************************************************************************************/
+
             swal("예약이 완료되었습니다.", {
               icon: "success",
             }).then(() => { location.href = './reserv_history.html'; })
@@ -341,6 +410,28 @@
         });
     }
 
+
+    function getCuurrentDate() {
+      var date = new Date()
+      var year = date.getFullYear().toString();
+
+      var month = date.getMonth() + 1
+      month = month < 10 ? '0' + month.toString() : month.toString()
+
+      var day = date.getDate();
+      day = day < 10 ? '0' + day.toString() : day.toString()
+
+      var hour = date.getHours();
+      hour = hour < 10 ? '0' + hour.toString() : hour.toString()
+
+      var minites = date.getMinutes();
+      minites = minites < 10 ? '0' + minites.toString() : minites.toString()
+
+      var seconds = date.getSeconds();
+      seconds = seconds < 10 ? '0' + seconds.toString() : seconds.toString()
+
+      return year + month + day + hour + minites + seconds
+    }
 
   </script>
 
