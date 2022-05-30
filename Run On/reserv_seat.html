@@ -364,12 +364,65 @@
               return csvRows.join('\n');
             };
 
-            const json = [{ "tag_id": "1", "room_no": "2", "seat_no": "01", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
-            { "tag_id": "2", "room_no": "2", "seat_no": "02", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
-            { "tag_id": "3", "room_no": "2", "seat_no": "03", "state": "이용 중", "user_name": "신*준", "usable_time": "12:30~15:00", "extension_time": "14:30~14:59", "extension_cnt": "0" },
-            { "tag_id": "4", "room_no": "2", "seat_no": "04", "state": "이용 중", "user_name": "김*아", "usable_time": "11:00~15:30", "extension_time": "15:00~15:29", "extension_cnt": "1" },]
+            const json = [
+              { "tag_id": "1", "room_no": "2", "seat_no": "01", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
+              { "tag_id": "2", "room_no": "2", "seat_no": "02", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
+              { "tag_id": "3", "room_no": "2", "seat_no": "03", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },
+              { "tag_id": "4", "room_no": "2", "seat_no": "04", "state": "이용 가능", "user_name": "", "usable_time": "", "extension_time": "", "extension_cnt": "" },]
 
-            console.log(json)
+
+            //Firbase Realtime Database와 싱크 맞추기
+            var query = firebase.database().ref("reserveData");
+            query.once("value", function (resList) {
+              resList.forEach(function (reserve) {
+                reserve.forEach(function (r) {
+                  if (r.val().room == '2') {
+                    if (r.val().seat == 1) {
+                      if (r.val().state == 1 && r.val().state == 0) {
+                        json[0].state = "이용 중"
+                        json[0].user_name = r.val().name
+                        json[0].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00'
+                        json[0].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59'
+                        json[0].extension_cnt = r.val().extension
+                      }
+                    }
+
+                    else if (r.val().seat == 2) {
+                      if (r.val().state == 1 && r.val().state == 0) {
+                        json[1].state = "이용 중"
+                        json[1].user_name = r.val().name
+                        json[1].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00'
+                        json[1].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59'
+                        json[1].extension_cnt = r.val().extension
+                      }
+                    }
+
+                    else if (r.val().seat == 3) {
+                      if (r.val().state == 1 && r.val().state == 0) {
+                        json[2].state = "이용 중"
+                        json[2].user_name = r.val().name
+                        json[2].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00'
+                        json[2].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59'
+                        json[2].extension_cnt = r.val().extension
+
+                      }
+                    }
+
+                    else if (r.val().seat == 4) {
+                      if (r.val().state == 1 && r.val().state == 0) {
+                        json[3].state = "이용 중"
+                        json[3].user_name = r.val().name
+                        json[3].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00'
+                        json[3].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59'
+                        json[3].extension_cnt = r.val().extension
+
+                      }
+                    }
+                  }
+                })
+              })
+
+            })
 
             //json 수정
             const userName = window.localStorage.getItem('userName')
@@ -381,27 +434,6 @@
             json[n - 1].extension_time = numberPad(String(parseInt(time2) - 1), 2) + ':30~' + numberPad(String(parseInt(time2) - 1), 2) + ':59'
             json[n - 1].extension_cnt = '0'
             //console.log(json)
-
-            const csv = objectToCsv(json)
-            //console.log(csv)
-            /*****************************************************************************************/
-
-            /************CSV 파일 다운로드*********************************************************************************/
-            const download = function (data) {
-              // Blob 객체 => 파일의 데이터 가공
-              const blob = new Blob(["\ufeff"+data], { type: 'text/csv' });
-              const url = window.URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              const fileName='import_'+getCuurrentDate()
-              a.setAttribute('hidden', '');
-              a.setAttribute('href', url);
-              a.setAttribute('download', fileName+'.csv'); // 파일명: import_YYYYMMDDHHMMSS.csv => 시간 받아오기 필요
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-            }
-            download(csv)
-            /*****************************************************************************************/
 
             swal("예약이 완료되었습니다.", {
               icon: "success",
