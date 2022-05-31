@@ -119,7 +119,7 @@
         <div id="content">
             <div class="main-content">
                 <section class="section row">
-                    <div class="card card-primary col-12">
+                    <div class="card card-primary col-12" id="noData">
                         <div class="card-header">
                             <h4> 좌석 이용 시작 </h4>
                         </div>
@@ -170,14 +170,16 @@
           function setContent(){
               var query = firebase.database().ref("reserveData").child(uid).orderByChild('state').equalTo(0); // 이용 전인 예약 받아오기
               query.once("value", function(res){
-                  res.forEach(function(r){
-                    // 오늘 날짜인지 체크
+                if(res.val() == null){
+                  document.querySelector('#noData').innerHTML = '<h4 class="m-auto p-5">예약 내역이 존재하지 않습니다.</h4>'
+                }
+                res.forEach(function(r){
+                  // 오늘 날짜인지 체크
+                  sessionStorage.setItem('resKey', r.key);
 
-                    sessionStorage.setItem('resKey', r.key);
-
-                    document.querySelector("#useSeat").innerHTML = "제"+r.val().room+"열람실 "+r.val().seat+"번";
-                    document.querySelector("#useDate").innerHTML = r.val().date + " " + r.val().startTime;
-                  })
+                  document.querySelector("#useSeat").innerHTML = "제"+r.val().room+"열람실 "+r.val().seat+"번";
+                  document.querySelector("#useDate").innerHTML = r.val().date + " " + r.val().startTime;
+                })
               })
           }
 
