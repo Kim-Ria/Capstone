@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no" name="viewport">
@@ -13,69 +14,74 @@
     <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.js"></script>
     <!-- Firebase -->
     <script>
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var firebaseConfig = {
-        apiKey: "AIzaSyDRpI3eSY34j9tnVT5RSojCXyKahyTXjY0",
-        authDomain: "capstone-51498.firebaseapp.com",
-        databaseURL: "https://capstone-51498-default-rtdb.firebaseio.com",
-        projectId: "capstone-51498",
-        storageBucket: "capstone-51498.appspot.com",
-        messagingSenderId: "509305643023",
-        appId: "1:509305643023:web:3e88f2c4ac6e5668b4437a",
-        measurementId: "G-MZKZ358C5T"
-    };
-    firebase.initializeApp(firebaseConfig);
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        var firebaseConfig = {
+            apiKey: "AIzaSyDRpI3eSY34j9tnVT5RSojCXyKahyTXjY0",
+            authDomain: "capstone-51498.firebaseapp.com",
+            databaseURL: "https://capstone-51498-default-rtdb.firebaseio.com",
+            projectId: "capstone-51498",
+            storageBucket: "capstone-51498.appspot.com",
+            messagingSenderId: "509305643023",
+            appId: "1:509305643023:web:3e88f2c4ac6e5668b4437a",
+            measurementId: "G-MZKZ358C5T"
+        };
+        firebase.initializeApp(firebaseConfig);
     </script>
 
     <script src="server.js"></script>
     <script src="assets/js/custom.js"></script>
 
     <script>
-        function checkNoShow(){ // 노쇼 : 예약 시간 10분 초과 & state=0 인 경우
+        function checkNoShow() { // 노쇼 : 예약 시간 10분 초과 & state=0 인 경우
             var query = firebase.database().ref('reserveData');
-            query.once('value', function(resList){
-                resList.forEach(function(res){ // res.key = userKey
+            query.once('value', function (resList) {
+                resList.forEach(function (res) { // res.key = userKey
                     var query2 = firebase.database().ref('reserveData').child(res.key).orderByChild('state').equalTo(0); // 이용 전 data만 가져옴
-                    query2.once('value', function(resData){ 
-                        resData.forEach(function(r){
+                    query2.once('value', function (resData) {
+                        resData.forEach(function (r) {
                             var now = new Date(); // 현재 시간
                             var nowH = now.getHours();
                             var nowM = now.getMinutes();
-                    
+
                             var res10 = new Date(); // 예약 시간 + 10분
 
-                            res10.setHours(r.val().startTime.substr(0,2));
-                            res10.setMinutes(r.val().startTime.substr(3,2));
+                            res10.setHours(r.val().startTime.substr(0, 2));
+                            res10.setMinutes(r.val().startTime.substr(3, 2));
                             res10.setSeconds(0);
-                    
+
                             var diff = res10;
-                            res10.setMinutes(diff.getMinutes()+10); // 10분 추가됨
-                    
-                            if(now > res10){ // 예약 시간 +10분 지남
+                            res10.setMinutes(diff.getMinutes() + 10); // 10분 추가됨
+
+                            if (now > res10) { // 예약 시간 +10분 지남
                                 var queryCancel = firebase.database().ref('reserveData').child(res.key).child(r.key); // 해당 예약
                                 queryCancel.update({
                                     state: 3 // 자동 취소
                                 })
-                    
+
+                                var cancel2 = firebase.database().ref('seat/열람실' + r.val().room + '/set')
+                                cancel2.once('value', function (qq) {
+                                    cancel2.update({left: qq.val().left+1});
+                                })
+
                                 var queryB = firebase.database().ref('blacklist').child(res.key); // 해당 사용자
-                                queryB.once('value', function(black){
-                                    if(black.val() == null){ // 블랙리스트에 존재하지 않는 경우 count=1 set
+                                queryB.once('value', function (black) {
+                                    if (black.val() == null) { // 블랙리스트에 존재하지 않는 경우 count=1 set
                                         queryB.set({
                                             count: 1, // 새로 등록할 때 경고 횟수 1
                                             warnDate: getToday() // 오늘 날짜 = 경고 받은 날짜 (경고 횟수 3일 때 endDate 구함)
                                         });
                                     } else { // 블랙리스트에 존재하는 경우 count+1 update
-                                        if(black.val().count == 2){ // 추가하면 3 (최대)
+                                        if (black.val().count == 2) { // 추가하면 3 (최대)
                                             // 이용 정지 기간 계산 (현재 + 30일)
                                             var date = new Date();
-                                            var after30days = (new Date(Date.parse(date) + 30*1000*60*60*24)) // 30일 후
-                                            
+                                            var after30days = (new Date(Date.parse(date) + 30 * 1000 * 60 * 60 * 24)) // 30일 후
+
                                             // yyyy-mm-dd 형식으로 변환
                                             var year = after30days.getFullYear();
                                             var month = ('0' + (after30days.getMonth() + 1)).slice(-2);
                                             var day = ('0' + after30days.getDate()).slice(-2);
-                                            var endDate = year + '-' + month + '-' + day;                                
-                    
+                                            var endDate = year + '-' + month + '-' + day;
+
                                             queryB.update({
                                                 count: black.val().count + 1,
                                                 warnDate: getToday(),
@@ -96,29 +102,34 @@
             })
         }
 
-        function autoCheckOut(){
+        function autoCheckOut() {
             var query = firebase.database().ref('reserveData');
-            query.once('value', function(resList){ // userKey
-                resList.forEach(function(resData){
+            query.once('value', function (resList) { // userKey
+                resList.forEach(function (resData) {
                     var query2 = firebase.database().ref('reserveData').child(resData.key).orderByChild('state').equalTo(1); // 이용 중인 data만 가져옴
-                    query2.once('value', function(res){
-                        res.forEach(function(r){
+                    query2.once('value', function (res) {
+                        res.forEach(function (r) {
                             // 이용 중인 예약 endTime 체크
                             var now = new Date(); // 현재 시간
                             var nowH = now.getHours();
                             var nowM = now.getMinutes();
-                    
+
                             var end = new Date(); // 예약 시간 + 10분
 
-                            end.setHours(r.val().endTime.substr(0,2));
-                            end.setMinutes(r.val().endTime.substr(3,2));
+                            end.setHours(r.val().endTime.substr(0, 2));
+                            end.setMinutes(r.val().endTime.substr(3, 2));
                             end.setSeconds(0);
 
-                            if(end < now) { // 이용 시간 지난 경우
+                            if (end < now) { // 이용 시간 지난 경우
                                 var cancel = firebase.database().ref('reserveData').child(resData.key).child(r.key);
                                 cancel.update({
                                     state: 2 // 퇴실
                                 });
+                                
+                                var cancel2 = firebase.database().ref('seat/열람실' + r.val().room + '/set')
+                                cancel2.once('value', function (qq) {
+                                    cancel2.update({left: qq.val().left+1});
+                                })
                             }
                         })
                     })
@@ -144,20 +155,22 @@
                 reserve.forEach(function (r) {
                     var idx = parseInt(r.val().seat) - 1;
 
-                      if (r.val().room == '2' && (r.val().state == 0 || r.val().state == 1)) {
-                        if(r.val().state == 0){
+                    if (r.val().room == '2' && (r.val().state == 0 || r.val().state == 1)) {
+                        if (r.val().state == 0) {
                             json[idx].state = "이용 전"
-                        }else{
+                        } else {
                             json[idx].state = "이용 중"
                         }
                         var name = r.val().name;
-                        json[idx].user_name = name[0]+"*"+name[2];
+                        json[idx].user_name = name[0] + "*" + name[2];
                         json[idx].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00';
                         json[idx].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59';
                         json[idx].extension_cnt = r.val().extension;
                     }
                 })
             })
+
+            console.log(json);
 
             const json_array = json;
             let csv_string = ''; // json을 csv로 변환한 문자열이 담길 변수
@@ -177,7 +190,7 @@
                 // CSV 문자열에 '내용' 행 삽입: 뒤에 줄바꿈(\r\n) 추가, 마지막 행은 줄바꿈X
                 csv_string += (index !== json_array.length - 1 ? `${row}\r\n` : `${row}`);
             })
-            
+
             upload(csv_string); // csv 업로드
         })
 
@@ -190,7 +203,9 @@
         }
     </script>
 </head>
+
 <body>
 
 </body>
+
 </html>
