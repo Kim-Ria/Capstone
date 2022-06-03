@@ -1,19 +1,42 @@
 var http = require('http');	// 서버 만드는 모듈 불러오기
 var fs = require('fs');
-var app = http.createServer(function(request,response){
+var url = require('url');
+
+const express = require('express');
+var bodyParser = require('body-parser');
+const app = express();
+
+var server = http.createServer(function(request,response){
     var url = request.url;
-    url = '/server.html';	// 실행할 url
+
+    if(url == '/'){
+        url = '/server.html';	// 실행할 url
+    } else if(url == '/upload') {
+        console.log(request.body);
+        url = '/server.html';
+    }
+    /*
+    else {
+        console.log("upload...");
+        console.log(request.body);
+        url = '/server.html';	// 실행할 url
+    }
+    */
     response.writeHead(200);
     response.end(fs.readFileSync(__dirname + url));
 });
-app.listen(8080);
+server.listen(8080, function(){
+    console.log("Server Running...");
+});
 
 /** file 업로드 */
 const ftp = require('basic-ftp');
 const { Readable } = require('stream');
+const exp = require('constants');
 
 /** DB 읽어오기 */
 async function upload(CSV) {
+    console.log("upload...");
     const client = new ftp.Client()
     //client.ftp.verbose = true;
 
