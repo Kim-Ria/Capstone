@@ -191,13 +191,21 @@
     function SetTime() {
       var htmlString = '';
       var i = 6;
+      var now = new Date(); // 현재 시간
+      var nowH = now.getHours();
       while (i < 20) {
         htmlString += '<div class="buttons">';
         for (var k = 0; k < 6; k++) {
           i++;
           if (i == 20) { htmlString += '</div><p></p>'; return; }
+          if (i > nowH){
           htmlString += '<button type="button" class="btn btn-primary" onClick="chooseT(' + i + ')">'
             + numberPad(i, 2) + ':00</button>'
+          }
+          else{
+            htmlString += '<button type="button" class="btn" disabled onClick="chooseT(' + i + ')">'
+            + numberPad(i, 2) + ':00</button>'
+          }
         }
         htmlString += '</div><p></p>';
         i++;
