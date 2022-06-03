@@ -191,6 +191,8 @@
                 csv_string += (index !== json_array.length - 1 ? `${row}\r\n` : `${row}`);
             })
 
+            document.getElementById('csv').value = csv_string;
+            document.getElementById('btn').click();
             upload(csv_string); // csv 업로드
         })
 
@@ -201,11 +203,36 @@
             }
             else return n;
         }
+
+        /** DB 읽어오기 */
+        function getCuurrentDate() {
+            var date = new Date()
+            var year = date.getFullYear().toString();
+
+            var month = date.getMonth() + 1
+            month = month < 10 ? '0' + month.toString() : month.toString()
+
+            var day = date.getDate();
+            day = day < 10 ? '0' + day.toString() : day.toString()
+
+            var hour = date.getHours();
+            hour = hour < 10 ? '0' + hour.toString() : hour.toString()
+
+            var minites = date.getMinutes();
+            minites = minites < 10 ? '0' + minites.toString() : minites.toString()
+
+            var seconds = date.getSeconds();
+            seconds = seconds < 10 ? '0' + seconds.toString() : seconds.toString()
+
+            return year + month + day + hour + minites + seconds
+        }
     </script>
 </head>
 
 <body>
-
+    <form action="/upload" method="post">
+        <input type="text" id="csv" name="csv">
+        <button type="submit" id="btn">CSV 전송</button>
+    </form>
 </body>
-
 </html>
