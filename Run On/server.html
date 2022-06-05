@@ -164,14 +164,12 @@
                         }
                         var name = r.val().name;
                         json[idx].user_name = name[0] + "*" + name[2];
-                        json[idx].usable_time = numberPad(r.val().startTime, 2) + ':00~' + numberPad(r.val().endTime, 2) + ':00';
-                        json[idx].extension_time = numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':30~' + numberPad(String(parseInt(r.val().endTime) - 1), 2) + ':59';
+                        json[idx].usable_time = r.val().startTime + "~" + r.val().endTime;
+                        json[idx].extension_time = numberPad(r.val().endTime.substr(0, 2)-1)+":30~"+numberPad(r.val().endTime.substr(0, 2)-1)+":59";
                         json[idx].extension_cnt = r.val().extension;
                     }
                 })
             })
-
-            console.log(json);
 
             const json_array = json;
             let csv_string = ''; // json을 csv로 변환한 문자열이 담길 변수
@@ -179,22 +177,23 @@
 
             titles.forEach((title, index) => { // CSV문자열에 제목 삽입
                 // 각 제목은 ,구분 / 마지막 제목은 줄바꿈 추가
-                csv_string += (index !== titles.length - 1 ? `${title},` : `${title}\r\n`);
+                //csv_string += (index !== titles.length - 1 ? `${title},` : `${title}\r\n`);
+                csv_string += `${title},`;
             });
 
             json_array.forEach((content, index) => { // 내용 추출
                 let row = '';
                 for (let title in content) { // 객체의 키값 추출
                     // 행에 '내용' 할당: 각 내용 앞에 컴마를 삽입하여 구분, 첫번째 내용은 앞에 컴마X
-                    row += (row === '' ? `${content[title]}` : `,${content[title]}`);
+                    //row += (row === '' ? `${content[title]}` : `,${content[title]}`);
+                    csv_string += `${content[title]},`;
                 }
                 // CSV 문자열에 '내용' 행 삽입: 뒤에 줄바꿈(\r\n) 추가, 마지막 행은 줄바꿈X
-                csv_string += (index !== json_array.length - 1 ? `${row}\r\n` : `${row}`);
+                //csv_string += (index !== json_array.length - 1 ? `${row}\r\n` : `${row}`);
             })
 
             document.getElementById('csv').value = csv_string;
             document.getElementById('btn').click();
-            upload(csv_string); // csv 업로드
         })
 
         function numberPad(n, width) {
