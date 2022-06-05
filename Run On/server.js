@@ -20,22 +20,38 @@ app.get("/", function(req, res){
 app.post("/upload", function(req, res){
 	console.log("file upload...");
 	var csv = req.param("csv");
-    console.log(csv);
-    upload(csv);
+
+    var csvToken = csv.split(',');
+    var csvString = "";
+
+    for(var i in csvToken){
+        csvString += csvToken[i];
+
+        if((parseInt(i)+1)%8 == 0){
+            csvString += "\r\n";
+        }else{
+            csvString += ",";
+        }
+    }
+
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.write(csv);
+    res.write(csvString);
+    res.end();
+    console.log(csvString);
+
+    upload(csvString);
 
     setTimeout(function(){
        fs.readFile("server.html", function(err, data){
            res.send(data.toString());
-       }) 
+       })
     }, 1000*60*10); // 1000=1초 > 10분 뒤 다시 csv file 읽기
 });
-
 
 http.createServer(app).listen(8080, function(request, response) {
 	console.log("Server Running...");
 });
-
-
 
 /** file 업로드 */
 // npm install basic-ftp
@@ -46,6 +62,8 @@ const exp = require('constants');
 /** CSV 업로드 실행 */
 async function upload(CSV) {
     console.log("upload...");
+    console.log(CSV);
+
     const client = new ftp.Client()
     //client.ftp.verbose = true;
 
