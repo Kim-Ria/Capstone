@@ -1,40 +1,49 @@
-var http = require('http');	// 서버 만드는 모듈 불러오기
-var fs = require('fs');
-var url = require('url');
+// npm install express
+var http = require("http");
+var express = require("express");
+var fs = require("fs");
 
-const express = require('express');
-var bodyParser = require('body-parser');
-const app = express();
+var app = express();
 
-var server = http.createServer(function(request,response){
-    var url = request.url;
+// POST 파라미터 처리
+var bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({ extended : false }));
 
-    if(url == '/'){
-        url = '/server.html';	// 실행할 url
-    } else if(url == '/upload') {
-        console.log(request.body);
-        url = '/server.html';
-    }
-    /*
-    else {
-        console.log("upload...");
-        console.log(request.body);
-        url = '/server.html';	// 실행할 url
-    }
-    */
-    response.writeHead(200);
-    response.end(fs.readFileSync(__dirname + url));
+// GET: server.html 띄우기
+app.get("/", function(req, res){
+    fs.readFile("server.html", function(err, data){
+        res.send(data.toString());
+    })
+})
+
+// POST: 파일 업로드
+app.post("/upload", function(req, res){
+	console.log("file upload...");
+	var csv = req.param("csv");
+    console.log(csv);
+    upload(csv);
+
+    setTimeout(function(){
+       fs.readFile("server.html", function(err, data){
+           res.send(data.toString());
+       }) 
+    }, 1000*60*10); // 1000=1초 > 10분 뒤 다시 csv file 읽기
 });
-server.listen(8080, function(){
-    console.log("Server Running...");
+
+
+http.createServer(app).listen(8080, function(request, response) {
+	console.log("Server Running...");
 });
+
+
 
 /** file 업로드 */
+// npm install basic-ftp
 const ftp = require('basic-ftp');
 const { Readable } = require('stream');
 const exp = require('constants');
 
-/** DB 읽어오기 */
+/** CSV 업로드 실행 */
 async function upload(CSV) {
     console.log("upload...");
     const client = new ftp.Client()
