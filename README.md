@@ -1,5 +1,7 @@
 # Capstone
 
+세종대학교 SW·AI·중심대학추진단 주관 제 13회 창의설계경진대회 입상
+
 [프로젝트 제안서](https://github.com/dongjun0128/Capstone/blob/main/%ED%94%84%EB%A1%9C%EC%A0%9D%ED%8A%B8%20%EC%A0%9C%EC%95%88%EC%84%9C/9%EC%A1%B0_%EC%88%98%EC%A0%95%EA%B3%BC%EC%A0%9C%EA%B3%84%ED%9A%8D%EC%84%9C_ESL%EC%9D%84%20%EC%9D%B4%EC%9A%A9%ED%95%9C%20%EC%8A%A4%EB%A7%88%ED%8A%B8%20%EC%98%88%EC%95%BD%20%EC%8B%9C%EC%8A%A4%ED%85%9C_%EC%8B%A0%EB%8F%99%EC%A4%80.pdf)
 
 [프로젝트 설계서](https://github.com/dongjun0128/Capstone/blob/main/%EC%84%A4%EA%B3%84%EC%84%9C/9%EC%A1%B0_%EC%84%A4%EA%B3%84%EC%84%9C_ESL%EC%9D%84%20%EC%9D%B4%EC%9A%A9%ED%95%9C%20%EC%8A%A4%EB%A7%88%ED%8A%B8%20%EC%98%88%EC%95%BD%20%EC%8B%9C%EC%8A%A4%ED%85%9C_%EC%8B%A0%EB%8F%99%EC%A4%80.pdf)
